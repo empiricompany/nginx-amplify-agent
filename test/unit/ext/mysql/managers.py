@@ -38,8 +38,9 @@ class MySQLManagerTestCase(MySQLTestCase):
         assert_that(
             found_master['cmd'],
             equal_to('/usr/sbin/mysqld --basedir=/usr --datadir=/var/lib/mysql '
-                     '--plugin-dir=/usr/lib/mysql/plugin --user=mysql '
-                     '--log-error=/var/log/mysql/error.log --pid-file=/var/run/mysqld/mysqld.pid '
+                     '--plugin-dir=/usr/lib/mysql/plugin '
+                     '--log-error=/var/log/mysql/error.log '
+                     '--pid-file=/var/run/mysqld/mysqld.pid '
                      '--socket=/var/run/mysqld/mysqld.sock --port=3306')
         )
         assert_that(
@@ -48,7 +49,7 @@ class MySQLManagerTestCase(MySQLTestCase):
         )
         assert_that(found_master['pid'], not_none())
         assert_that(found_master['local_id'], equal_to(
-            'd3780726c2fdcbf45e32729a3113131f1cb4cf9a7cd42f99cd3f0ec88b9840c6'
+            '4a04269b3225f2c48ad699866141f2a45a65c6b28e6abcf4d9dea69acdf967e8'
         ))
 
     def test_find_correct_cmd(self):

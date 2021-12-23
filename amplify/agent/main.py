@@ -129,7 +129,7 @@ def run(agent_name=None):
             agent_name=agent_name
         )
     except:
-        print(traceback.format_exc(sys.exc_traceback))
+        traceback.print_exc()
 
     # run the agent
     try:
@@ -147,4 +147,4 @@ def run(agent_name=None):
             daemon_runner.do_action()
     except:
         context.default_log.error('uncaught exception during run time', exc_info=True)
-        print(traceback.format_exc(sys.exc_traceback))
+        traceback.print_exc()

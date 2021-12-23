@@ -2,7 +2,7 @@
 import time
 from hamcrest import *
 
-from test.base import RealNginxTestCase, nginx_plus_test
+from test.base import RealNginxTestCase, nginx_plus_test, nginx_plus_before_release
 
 from amplify.agent.common.context import context
 from amplify.agent.managers.nginx import NginxManager
@@ -33,6 +33,7 @@ class StatusManagerTestCase(RealNginxTestCase):
         super(StatusManagerTestCase, self).teardown_method(method)
 
     @nginx_plus_test
+    @nginx_plus_before_release(r=16)
     def test_discover(self):
         nginx_manager = NginxManager()
         nginx_manager._discover_objects()
@@ -56,6 +57,7 @@ class StatusManagerTestCase(RealNginxTestCase):
         assert_that(plus_manager.objects.find_all(types=plus_manager.types), has_length(10))
 
     @nginx_plus_test
+    @nginx_plus_before_release(r=16)
     def test_discover_ignore_api_objects(self):
         if self.plus_manager.__name__ != 'StatusManager':
             # this test only applies to old status manager
@@ -84,16 +86,17 @@ class StatusManagerTestCase(RealNginxTestCase):
         # make sure there is no overlap
         api_manager = ApiManager()
         api_manager._discover_objects()
-        assert_that(api_manager._api_objects(), has_length(10))
-        assert_that(plus_manager._status_objects(), has_length(0))
+        assert_that(list(api_manager._api_objects()), has_length(10))
+        assert_that(list(plus_manager._status_objects()), has_length(0))
 
         nginx_obj.api_enabled = self.api
         plus_manager._discover_objects()
         api_manager._discover_objects()
-        assert_that(api_manager._api_objects(), has_length(0))
-        assert_that(plus_manager._status_objects(), has_length(10))
+        assert_that(list(api_manager._api_objects()), has_length(0))
+        assert_that(list(plus_manager._status_objects()), has_length(15))
 
     @nginx_plus_test
+    @nginx_plus_before_release(r=16)
     def test_rejuvenation(self):
         nginx_manager = NginxManager()
         nginx_manager._discover_objects()

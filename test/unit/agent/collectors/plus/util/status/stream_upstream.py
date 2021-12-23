@@ -132,7 +132,7 @@ class StreamUpstreamCollectorTestCase(BaseTestCase):
             1
         ))
 
-        data = stream_upstream_collector.gather_data()
+        data = list(stream_upstream_collector.gather_data())
 
         assert_that(data, not_(equal_to([])))
         assert_that(data, has_length(1))
@@ -147,7 +147,7 @@ class StreamUpstreamCollectorTestCase(BaseTestCase):
 
         # Get the stream_upstream collector
         stream_upstream_collector = stream_upstream.collectors[-1]
-        assert_that(stream_upstream_collector.last_collect, equal_to(None))
+        assert_that(stream_upstream_collector.last_collect, equal_to(-1))
 
         context.plus_cache.put('test_status', (
             {
@@ -381,7 +381,7 @@ class StreamUpstreamCollectorTestCase(BaseTestCase):
 
         # Get the stream_upstream collector
         stream_upstream_collector = stream_upstream.collectors[-1]
-        assert_that(stream_upstream_collector.last_collect, equal_to(None))
+        assert_that(stream_upstream_collector.last_collect, equal_to(-1))
 
         context.plus_cache.put('test_status', (
             {

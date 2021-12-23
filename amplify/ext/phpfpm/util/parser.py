@@ -105,7 +105,7 @@ class PHPFPMConfig(object):
 
             return raw_value
 
-        with open(path, 'r') as conf_file:
+        with open(path, 'r', encoding='utf-8') as conf_file:
             for line in conf_file:
                 # strip spaces
                 line = line.strip()
@@ -134,7 +134,7 @@ class PHPFPMConfig(object):
         """
         includes = set()  # avoid circular imports with set()
 
-        for context, entity in self._structure.iteritems():
+        for context, entity in self._structure.items():
             # NOTE: By iterating over all items (including the 'global' key
             # word) we effectively obey all includes equally regardless of
             # location.

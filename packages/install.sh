@@ -14,10 +14,10 @@ amplify_hostname=""
 api_url="https://receiver.amplify.nginx.com:443"
 api_ping_url="${api_url}/ping/"
 api_receiver_url="${api_url}/1.4"
-public_ntp="north-america.pool.ntp.org"
 nginx_conf_file="/etc/nginx/nginx.conf"
 amplify_pid_file="/var/run/amplify-agent/amplify-agent.pid"
 store_uuid="False"
+python_supported=2
 
 #
 # Functions
@@ -34,10 +34,12 @@ get_os_name () {
         codename=`lsb_release -cs | tr '[:upper:]' '[:lower:]'`
         release=`lsb_release -rs | sed 's/\..*$//'`
 
-        if [ "$os" = "redhatenterpriseserver" -o "$os" = "oracleserver" ]; then
-            os="centos"
-            centos_flavor="red hat linux"
-        fi
+        case "$os" in
+            redhatenterprise|redhatenterpriseserver|oracleserver)
+                os="rhel"
+                centos_flavor="red hat linux"
+                ;;
+        esac
     # Otherwise it's getting a little bit more tricky
     else
         if ! ls /etc/*-release > /dev/null 2>&1; then
@@ -94,7 +96,7 @@ get_os_name () {
                              sed 's/^[^0-9]*\([0-9][0-9]*\).*$/\1/' | head -1`
                 fi
 
-                os="centos"
+                os="rhel"
                 centos_flavor="red hat linux"
                 ;;
             amzn)
@@ -119,6 +121,74 @@ get_os_name () {
                 ;;
         esac
     fi
+}
+
+
+# Check availability of specified major Python version (default is 2)
+check_python() {
+    printf "\033[32m ${step}. Checking Python ...\033[0m"
+
+    case "$1" in
+        3)
+            pyver=3
+            python_package_deb="python3"
+            python_package_rpm="python3"
+            command -V python3 > /dev/null 2>&1 && python_bin='python3'
+            ;;
+        *)
+            pyver=2
+            python_package_deb="python2.7"
+            python_package_rpm="python"
+            command -V python > /dev/null 2>&1 && python_bin='python'
+            if [ -z "$python_bin" ]; then
+                command -V python2 > /dev/null 2>&1 && python_bin='python2'
+            fi
+            if [ -z "$python_bin" ]; then
+                command -V python2.7 > /dev/null 2>&1 && python_bin='python2.7'
+            fi
+            ;;
+    esac
+
+    if [ -z "${python_bin}" ]; then
+        printf "\033[31m python ${pyver} required, could not be found.\033[0m\n\n"
+        case "$os" in
+            ubuntu|debian)
+                printf "\033[32m Please check and install Python package:\033[0m\n\n"
+                printf "     ${sudo_cmd}apt-cache pkgnames | grep ${python_package_deb}\n"
+                printf "     ${sudo_cmd}apt-get install ${python_package_deb}\n\n"
+                ;;
+            centos|rhel|amzn)
+                printf "\033[32m Please check and install Python package:\033[0m\n\n"
+                printf "     ${sudo_cmd}yum list ${python_package_rpm}\n"
+                printf "     ${sudo_cmd}yum install ${python_package_rpm}\n\n"
+                ;;
+        esac
+        exit 1
+    fi
+
+    python_version=`${python_bin} -c 'import sys; print("{0}.{1}".format(sys.version_info[0], sys.version_info[1]))'`
+
+    if [ $? -ne 0 ]; then
+        printf "\033[31m failed to detect python version.\033[0m\n\n"
+        exit 1
+    fi
+
+    case $pyver in
+        2)
+            if [ $(echo "$python_version" | tr -d '.') -lt 27 ]; then
+                printf "\033[31m python 2 older than 2.7 is not supported.\033[0m\n\n"
+                exit 1
+            fi
+            ;;
+        3)
+            if [ $(echo "$python_version" | tr -d '.') -lt 36 ]; then
+                printf "\033[31m python 3 older than 3.6 is not supported.\033[0m\n\n"
+                exit 1
+            fi
+            ;;
+    esac
+
+    printf "\033[32m found python $python_version\033[0m\n"
 }
 
 # Check what downloader is available
@@ -178,9 +248,13 @@ add_public_key_rpm() {
     fi
 }
 
-# Add repo configuration (Ubuntu/Debian)
+# Add repo configuration (apt - Ubuntu/Debian)
 add_repo_deb () {
     printf "\033[32m ${step}. Adding repository ...\033[0m"
+
+    if [ $1 -eq 3 ]; then
+        packages_url=${packages_url}/py3/
+    fi
 
     test -d /etc/apt/sources.list.d && \
     ${sudo_cmd} test -w /etc/apt/sources.list.d && \
@@ -198,9 +272,13 @@ add_repo_deb () {
     fi
 }
 
-# Add repo configuration (CentOS)
+# Add repo configuration (yum - CentOS/RHEL/Amazon/Oracle)
 add_repo_rpm () {
     printf "\033[32m ${step}. Adding repository config ...\033[0m"
+
+    if [ $1 -eq 3 ]; then
+        packages_url=${packages_url}/py3
+    fi
 
     test -d /etc/yum.repos.d && \
     ${sudo_cmd} test -w /etc/yum.repos.d && \
@@ -374,49 +452,6 @@ incr_step
 # Get OS name and codename
 get_os_name
 
-# Check for Python
-printf "\033[32m ${step}. Checking Python ...\033[0m"
-command -V python > /dev/null 2>&1 && python_bin='python'
-command -V python2.7 > /dev/null 2>&1 && python_bin='python2.7'
-command -V python2.6 > /dev/null 2>&1 && python_bin='python2.6'
-
-if [ -z "${python_bin}" ]; then
-    printf "\033[31m python 2.6 or 2.7 required, could not be found.\033[0m\n\n"
-
-    case "$os" in
-        ubuntu|debian)
-            printf "\033[32m Please check and install Python package:\033[0m\n\n"
-            printf "     ${sudo_cmd}apt-cache pkgnames | grep python2.7\n"
-            printf "     ${sudo_cmd}apt-get install python2.7\n\n"
-            ;;
-        centos|amzn)
-            printf "\033[32m Please check and install Python package:\033[0m\n\n"
-            printf "     ${sudo_cmd}yum list python\n"
-            printf "     ${sudo_cmd}yum install python\n\n"
-            ;;
-        *)
-            ;;
-    esac
-
-    exit 1
-fi
-
-python_version=`${python_bin} -c 'import sys; print("{0}.{1}".format(sys.version_info[0], sys.version_info[1]))'`
-
-if [ $? -eq 0 ]; then
-    if [ "${python_version}" != "2.6" -a "${python_version}" != "2.7" ]; then
-        printf "\033[31m python older than 2.6 or newer than 2.7 is not supported.\033[0m\n\n"
-        exit 1
-    fi
-else
-        printf "\033[31m failed to detect python version.\033[0m\n\n"
-        exit 1
-fi
-
-printf "\033[32m found python $python_version\033[0m\n"
-
-incr_step
-
 # Check for supported OS
 printf "\033[32m ${step}. Checking OS compatibility ...\033[0m"
 
@@ -424,6 +459,17 @@ printf "\033[32m ${step}. Checking OS compatibility ...\033[0m"
 case "$os" in
     ubuntu|debian)
         printf "\033[32m ${os} detected.\033[0m\n"
+        incr_step
+
+        case "$codename" in
+            buster|bullseye|bionic|focal)
+                check_python 3
+                python_supported=3
+                ;;
+            *)
+                check_python 2
+                ;;
+        esac
 
         incr_step
 
@@ -450,8 +496,7 @@ case "$os" in
         incr_step
 
         # Add repository configuration
-        add_repo_deb
-
+        add_repo_deb $python_supported
         incr_step
 
         # Install package
@@ -465,8 +510,20 @@ case "$os" in
 
         install_deb_or_rpm
         ;;
-    centos|amzn)
+    centos|rhel|amzn)
         printf "\033[32m ${centos_flavor} detected.\033[0m\n"
+
+        incr_step
+
+        case "$os$release" in
+            rhel8|centos8)
+                check_python 3
+                python_supported=3
+                ;;
+            *)
+                check_python 2
+                ;;
+        esac
 
         incr_step
 
@@ -476,7 +533,7 @@ case "$os" in
         incr_step
 
         # Add repository configuration
-        add_repo_rpm
+        add_repo_rpm $python_supported
 
         incr_step
 

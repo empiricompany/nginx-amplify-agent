@@ -70,7 +70,7 @@ def test(config_filename, pid_file, wait_for_cloud, agent_name):
                 pid_file=pid_file,
                 skip_uuid=True
             )
-        except IOError, e:
+        except IOError as e:
             if hasattr(e, 'filename'):  # log error
                 pass
             else:

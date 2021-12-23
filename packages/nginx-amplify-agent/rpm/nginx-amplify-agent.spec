@@ -1,8 +1,3 @@
-%{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
-
-# distribution specific definitions
-%define use_systemd (0%{?fedora} && 0%{?fedora} >= 18) || (0%{?rhel} && 0%{?rhel} >= 7) || (0%{?suse_version} == 1315) || (0%{?amzn} >= 2)
-
 %define nginx_home %{_localstatedir}/cache/nginx
 %define nginx_user nginx
 %define nginx_group nginx
@@ -10,32 +5,34 @@
 
 Summary: NGINX Amplify Agent
 Name: nginx-amplify-agent
-Version: %{amplify_version}
-Release: %{amplify_release}%{?dist}
+Version: %%AMPLIFY_AGENT_VERSION%%
+Release: %%AMPLIFY_AGENT_RELEASE%%%{?dist}
 Vendor: Nginx Software, Inc.
 Packager: Nginx Software, Inc. <https://www.nginx.com>
 Group: System Environment/Daemons
-URL: https://github.com/nginxinc
+URL: https://github.com/nginxinc/nginx-amplify-agent
 License: 2-clause BSD-like license
 
+Source0: nginx-amplify-agent-%{version}.tar.gz
+Source1: nginx-amplify-agent.service
 
-Source0:   nginx-amplify-agent-%{version}.tar.gz
-%if %{use_systemd}
-Source1:   nginx-amplify-agent.service
-%endif
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
-%if (0%{?amzn} == 1)
-Requires: python27
-%define __python /usr/bin/python2.7
-%else if (0%{?rhel} >= 8)
-Requires: python2
+BuildRequires: python3-devel
+BuildRequires: python3-pip
+
+%if 0%{?amzn} >= 2
+Requires: python3 >= 3.7
+Requires: python3-requests
 %else
-Requires: python >= 2.6
+Requires: python3 >= 3.6
+Requires: python3-gevent
+Requires: python3-requests
+Requires: python3-netifaces
 %endif
+
 Requires: initscripts >= 8.36
 Requires(post): chkconfig
-
 
 %if 0%{?rhel} >= 8
 %define _debugsource_template %{nil}
@@ -58,7 +55,8 @@ cp -p %{SOURCE0} .
 
 
 %build
-%{__python} -c 'import setuptools; execfile("setup.py")' build
+%{__python3} -m pip install --upgrade --target=amplify --no-compile -r %%REQUIREMENTS%%
+%{__python3} -c 'import setuptools; exec(open("setup.py").read())' build
 
 
 %pre
@@ -70,24 +68,18 @@ getent passwd %{nginx_user} >/dev/null || \
 exit 0
 
 
-
 %install
 %define python_libexec /usr/bin/
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
-%{__python} -c 'import setuptools; execfile("setup.py")' install -O1 --skip-build --install-scripts %{python_libexec} --root %{buildroot}
+%{__python3} -c 'import setuptools; exec(open("setup.py").read())' install -O1 --skip-build --install-scripts %{python_libexec} --root %{buildroot}
 mkdir -p %{buildroot}/var/
 mkdir -p %{buildroot}/var/log/
 mkdir -p %{buildroot}/var/log/amplify-agent/
 mkdir -p %{buildroot}/var/
 mkdir -p %{buildroot}/var/run/
 mkdir -p %{buildroot}/var/run/amplify-agent/
-%if %{use_systemd}
 %{__mkdir} -p %{buildroot}/%{_unitdir}
 %{__install} -m644 %SOURCE1 %{buildroot}/%{_unitdir}/amplify-agent.service
-%endif
-%if 0%{?rhel} >= 8
-sed -i -e 's,/usr/bin/python,/usr/bin/python2,g' %{buildroot}/usr/bin/nginx-amplify-agent.py
-%endif
 
 
 %clean
@@ -97,28 +89,20 @@ sed -i -e 's,/usr/bin/python,/usr/bin/python2,g' %{buildroot}/usr/bin/nginx-ampl
 %files
 %define config_files /etc/amplify-agent/
 %defattr(-,root,root,-)
-%{python_sitelib}/*
+%{python3_sitelib}/*
 %{python_libexec}/*
 %{config_files}/*
 %attr(0755,nginx,nginx) %dir /var/log/amplify-agent
 %attr(0755,nginx,nginx) %dir /var/run/amplify-agent
-%if %{use_systemd}
 %{_unitdir}/amplify-agent.service
-%endif
 /etc/init.d/amplify-agent
 /etc/logrotate.d/amplify-agent
 
 
-
-
 %post
 if [ $1 -eq 1 ] ; then
-%if %{use_systemd}
     /usr/bin/systemctl preset amplify-agent.service >/dev/null 2>&1 ||:
     /usr/bin/systemctl enable amplify-agent.service >/dev/null 2>&1 ||:
-%else
-    /sbin/chkconfig --add amplify-agent
-%endif
     mkdir -p /var/run/amplify-agent
     touch /var/log/amplify-agent/agent.log
     chown nginx /var/run/amplify-agent /var/log/amplify-agent/agent.log
@@ -158,20 +142,19 @@ elif [ $1 -eq 2 ] ; then
     fi
 fi
 
+
 %preun
 if [ $1 -eq 0 ]; then
-%if %use_systemd
     /usr/bin/systemctl --no-reload disable amplify-agent.service >/dev/null 2>&1 ||:
     /usr/bin/systemctl stop amplify-agent.service >/dev/null 2>&1 ||:
-%else
-    /sbin/service amplify-agent stop > /dev/null 2>&1
-    /sbin/chkconfig --del amplify-agent
-%endif
 fi
 
 
-
 %changelog
+* Thu Dec  9 2021 Andrei Belov <defan@nginx.com> 1.8.0-1
+- 1.8.0-1
+- agent version for Python 3
+
 * Mon Sep 23 2019 Andrei Belov <defan@nginx.com> 1.7.0-5
 - improved nginx-plus status URL discovery method
 - updated crossplane, psutil, and requests modules

@@ -61,7 +61,7 @@ class PHPFPMPoolMetricsCollector(AbstractMetricsCollector):
     @staticmethod
     def _parse_status_page(status_page):
         result = {}
-        if isinstance(status_page, basestring):
+        if isinstance(status_page, str):
             for line in status_page.split('\n'):
                 split_line = line.split(':', 1)
                 if len(split_line) == 2:
@@ -133,7 +133,7 @@ class PHPFPMPoolMetricsCollector(AbstractMetricsCollector):
         # counters
 
         counted_vars = {}
-        for metric, status_name in metric_map['counters'].iteritems():
+        for metric, status_name in metric_map['counters'].items():
             if status_name in self._current:
                 counted_vars[metric] = int(self._current[status_name])
 
@@ -147,7 +147,7 @@ class PHPFPMPoolMetricsCollector(AbstractMetricsCollector):
         # gauges
 
         tracked_gauges = {}
-        for metric, status_name in metric_map['gauges'].iteritems():
+        for metric, status_name in metric_map['gauges'].items():
             if status_name in self._current:
                 tracked_gauges[metric] = {
                     self.object.definition_hash: int(self._current[status_name])

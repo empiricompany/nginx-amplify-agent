@@ -1,8 +1,7 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import argparse
 import os
-
-from optparse import OptionParser, Option
 
 from builders.util import shell_call, color_print
 
@@ -12,47 +11,30 @@ __license__ = ""
 __maintainer__ = "Mike Belov"
 __email__ = "dedm@nginx.com"
 
-usage = "usage: %prog -h"
-
-option_list = (
-    Option(
-        '--plus',
-        action='store_true',
-        dest='plus',
-        help='Run with nginx+ (false by default)',
-        default=False,
-    ),
-    Option(
-        '--plain',
-        action='store_true',
-        dest='vanilla',
-        help='Run plain Ubuntu',
-        default=False,
-    ),
-)
-
-parser = OptionParser(usage, option_list=option_list)
-(options, args) = parser.parse_args()
+parser = argparse.ArgumentParser(prog='tools/test.py')
+group = parser.add_mutually_exclusive_group()
+group.add_argument('--plus', action='store_true', help='run with nginx+')
+group.add_argument('--plus-r15', action='store_true', help='run with nginx+ r15')
+parser.add_argument('--base', dest='base', help='base image (rhel8, ubuntu2004, debian10, ubuntu1804)', default='ubuntu2004')
+args = parser.parse_args()
 
 if __name__ == '__main__':
-    if options.plus:
-        yml, image, path = 'docker/test-plus.yml', 'amplify-agent-test-plus', 'docker/test-plus'
-    elif options.vanilla:
-        yml, image, path = 'docker/test-vanilla.yml', 'amplify-agent-test-vanilla', 'docker/test-vanilla'
+    if args.plus:
+        path, image = 'docker/test-plus', 'amplify-agent-test-plus'
+    elif args.plus_r15:
+        path, image = 'docker/test-plus-r15', 'amplify-agent-test-plus-r15'
+        args.base = 'ubuntu1804'
     else:
-        yml, image, path = 'docker/test.yml', 'amplify-agent-test', 'docker/test'
+        path, image = 'docker/test', 'amplify-agent-test'
 
     shell_call('find . -name "*.pyc" -type f -delete', terminal=True)
-    shell_call('cat packages/*/requirements.txt >> %s/requirements.txt' % path)
-    shell_call('cp -pf %s/.dockerignore .' % path)
-    shell_call('docker build -t %s -f %s/Dockerfile .' % (image, path), terminal=True)
-    shell_call('rm %s/requirements.txt' % path)
-    shell_call('rm .dockerignore')
+    shell_call('rm -f %s/requirements.txt' % path)
+    shell_call('cat packages/nginx-amplify-agent/requirements-%s.txt >> %s/requirements.txt' % (args.base, path))
+    shell_call('docker build -t %s:%s -f %s/Dockerfile.%s .' % (image, args.base, path, args.base), terminal=True)
+    shell_call('rm -f %s/requirements.txt' % path)
 
     rows, columns = os.popen('stty size', 'r').read().split()
     color_print("\n= RUN TESTS =" + "="*(int(columns)-13))
     color_print("py.test test/", color="yellow")
     color_print("="*int(columns)+"\n")
-    shell_call('docker-compose -f %s run test bash' % yml, terminal=True)
-
-
+    shell_call('docker-compose -f %s-%s.yml run test bash' % (path, args.base), terminal=True)

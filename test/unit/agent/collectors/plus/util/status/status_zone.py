@@ -42,7 +42,7 @@ class StatusZoneCollectorTestCase(BaseTestCase):
             1
         ))
 
-        data = status_zone_collector.gather_data()
+        data = list(status_zone_collector.gather_data())
 
         assert_that(data, not_(equal_to([])))
         assert_that(data, has_length(1))
@@ -53,7 +53,7 @@ class StatusZoneCollectorTestCase(BaseTestCase):
 
         # Get the status_zone collector
         status_zone_collector = status_zone.collectors[-1]
-        assert_that(status_zone_collector.last_collect, equal_to(None))
+        assert_that(status_zone_collector.last_collect, equal_to(-1))
 
         context.plus_cache.put('test_status', (
             {

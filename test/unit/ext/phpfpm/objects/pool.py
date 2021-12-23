@@ -22,7 +22,7 @@ class PHPFPMPoolObjectTestCase(BaseTestCase):
         pool_data = {
             'status_path': '/status',
             'name': 'www',
-            'file': '/etc/php5/fpm/pool.d/www.conf',
+            'file': '/etc/php/7.4/fpm/pool.d/www.conf',
             'listen': '/run/php/php7.0-fpm.sock'
         }
 
@@ -40,6 +40,6 @@ class PHPFPMPoolObjectTestCase(BaseTestCase):
             {'local_id': 124, 'type': 'phpfpm_pool', 'root_uuid': DEFAULT_UUID}
         ))
         assert_that(phpfpm_pool.definition_hash, equal_to(
-            'a2071ce31b031f8f163d464648a7c9cf5305a5be65ddb9ef7daf2d97c13520f6'
+            '317c290caecbedfc5cc679b0e191067e830566cb58545279dcc962150587f815'
         ))
         assert_that(phpfpm_pool.collectors, has_length(2))

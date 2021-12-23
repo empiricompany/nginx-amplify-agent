@@ -51,7 +51,7 @@ class SyslogTailTestCase(BaseTestCase):
         assert_that(self.tail.cache, has_length(count-1))
 
         # Check the cache directly to make sure messages were decoded.
-        for i in xrange(5):
+        for i in range(5):
             assert_that(self.tail.cache[i], equal_to(u'This is message #%s\x00' % (i+1)))
 
         # Go through and check the messages via iteration

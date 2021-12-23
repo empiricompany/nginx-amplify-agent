@@ -183,7 +183,7 @@ class ObjectsTank(Singleton):
         # Remove obj_id from parent's child list (if any).  This means by
         # default unregister linearly scans all relations looking for obj_id of
         # unregistered object.
-        for parent_id, children in self.relations.iteritems():
+        for parent_id, children in self.relations.items():
             if obj_id in children:
                 children.remove(obj_id)
                 break
@@ -246,7 +246,7 @@ class ObjectsTank(Singleton):
             return
 
         found_parent_id = None
-        for parent_id, children_ids in self.relations.iteritems():
+        for parent_id, children_ids in self.relations.items():
             if obj_id in children_ids:
                 found_parent_id = parent_id
                 break

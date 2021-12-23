@@ -34,17 +34,17 @@ class PHPFPMTestCase(BaseTestCase):
 
     def start_fpm(self):
         if not self.running:
-            subp.call('service php5-fpm start')
+            subp.call('service php7.4-fpm start')
             self.running = True
 
     def stop_fpm(self):
         if self.running:
-            subp.call('service php5-fpm stop')
+            subp.call('service php7.4-fpm stop')
             self.running = False
 
     def restart_fpm(self):
         if self.running:
-            subp.call('service php5-fpm restart')
+            subp.call('service php7.4-fpm restart')
 
 
 class PHPFPMSupervisordTestCase(PHPFPMTestCase):

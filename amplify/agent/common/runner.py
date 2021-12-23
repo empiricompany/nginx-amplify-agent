@@ -25,3 +25,8 @@ class Runner(runner.DaemonRunner):
         self.daemon_context.signal_map = {
             signal.SIGTERM: cleanup
         }
+
+    def _open_streams_from_app_stream_paths(self, app):
+        self.daemon_context.stdin = open(app.stdin_path, 'rt')
+        self.daemon_context.stdout = open(app.stdout_path, 'w+t')
+        self.daemon_context.stderr = open(app.stderr_path, 'w+t')

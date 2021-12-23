@@ -68,7 +68,7 @@ class LogsPerMethodTestCase(NginxCollectorTestCase):
         )
 
         # collect requests with $status 400 to 498
-        lines = [line_template % x for x in xrange(400, 499)]
+        lines = [line_template % x for x in range(400, 499)]
         NginxAccessLogsCollector(object=self.fake_object, tail=lines).collect()
         counter = self.fake_object.statsd.flush()['metrics']['counter']
         assert_that(counter, has_entries(

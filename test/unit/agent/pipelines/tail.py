@@ -43,7 +43,7 @@ class TailTestCase(BaseTestCase):
         tail = FileTail(filename=self.test_log)
 
         # write messages and read them
-        for i in xrange(10):
+        for i in range(10):
             line = "this is %s line" % i
             self.write_log(line)
             new_lines = tail.readlines()

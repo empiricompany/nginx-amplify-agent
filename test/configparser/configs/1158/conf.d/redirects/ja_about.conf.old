@@ -1,0 +1,72 @@
+#  News Index Rewrite
+
+rewrite ^/ja/about/newsroom/news.php(.*)$ /ja/about/newsroom/news-2013.php last;
+
+rewrite ^/ja/about/newsroom/aaa-freescale-ibm-samsung-st-ericsson-texas-instruments-form-new-company-speed-the-rollout-of-linux-based-devices.php$ /ja/about/newsroom/aaa-freescale-ibm-samsung-st-ericsson-ti-form-new-company-speed-rollout-of-linux-based-devices.php permanent;
+
+# Events Rewrite
+rewrite ^/ja/about/events/industry-events.php$ /ja/about/events/live-events.php permanent;
+rewrite ^/ja/about/events/aaa-symposiums.php$ /ja/about/events/live-events.php permanent;
+rewrite ^/ja/about/events/webinars.php$ /ja/about/events/online-events.php permanent;
+
+# Trademarks
+rewrite ^/ja/about/trademark-usage-guidelines.php$ /ja/about/trademarks/index.php permanent;
+rewrite ^/ja/about/trademarks/aaa-trademark-list/Sensinode-trademark.php$ /ja/about/trademarks/aaa-trademark-list/mbed-trademark.php permanent;
+
+# Careers Redirection to new section
+rewrite ^/ja/about/careers/$ /ja/careers/index.php permanent;
+rewrite ^/ja/about/careers/index.php$ /ja/careers/index.php permanent;
+rewrite ^/ja/about/careers/working-at-aaa/index.php$ /ja/careers/life-at-aaa/index.php permanent;
+rewrite ^/ja/about/careers/working-at-aaa/community.php$ /ja/careers/life-at-aaa/workforce-diversity.php permanent;
+rewrite ^/ja/about/careers/working-at-aaa/culture.php$ /ja/careers/life-at-aaa/culture-and-values.php permanent;
+rewrite ^/ja/about/careers/working-at-aaa/values.php$ /ja/careers/life-at-aaa/culture-and-values.php permanent;
+rewrite ^/ja/about/careers/working-at-aaa/compensation-benefits.php$ /ja/careers/life-at-aaa/compensation-and-benefits.php permanent;
+rewrite ^/ja/about/careers/working-at-aaa/development.php$ /ja/careers/life-at-aaa/culture-and-values.php  permanent;
+rewrite ^/ja/about/careers/working-at-aaa/divisions.php$ /ja/careers/life-at-aaa/career-paths.php permanent;
+rewrite ^/ja/about/careers/experienced-vacancies/index.php$ /ja/careers/how-to-join-aaa/experienced.php permanent;
+rewrite ^/ja/about/careers/experienced-vacancies/all-vacancies.php$ /ja/careers/how-to-join-aaa/experienced.php permanent;
+rewrite ^/ja/about/careers/graduates/index.php$ /ja/careers/how-to-join-aaa/graduate.php permanent;
+rewrite ^/ja/about/careers/graduates/vacancies.php$ /ja/careers/how-to-join-aaa/graduate.php permanent;
+rewrite ^/ja/about/careers/graduates/recruitment-events.php$ /ja/careers/how-to-join-aaa/recruitment-events.php permanent;
+#rewrite ^/ja/about/careers/students/index.php (interns)$ /ja/careers/how-to-join-aaa/intern.php permanent;
+rewrite ^/ja/about/careers/students/student-vacancies.php$ /ja/careers/how-to-join-aaa/intern.php permanent;
+#rewrite ^/ja/about/careers/locations/index.php (regional vacancies)$ /ja/careers/how-to-join-aaa/index.php permanent;
+rewrite ^/ja/about/careers/locations/asia-vacancies.php$ /ja/careers/how-to-join-aaa/index.php permanent;
+rewrite ^/ja/about/careers/locations/europe-vacancies.php$ /ja/careers/how-to-join-aaa/index.php permanent;
+rewrite ^/ja/about/careers/locations/us-vacancies.php$ /ja/careers/how-to-join-aaa/index.php permanent;
+rewrite ^/ja/about/careers/how-to-apply/index.php$ /ja/careers/how-to-join-aaa/index.php permanent;
+rewrite ^/ja/about/careers/how-to-apply/recruitment-process.php$ /ja/careers/how-to-join-aaa/index.php permanent;
+rewrite ^/ja/about/careers/how-to-apply/hints-and-tips.php$ /ja/careers/life-at-aaa/student-center.php permanent;
+rewrite ^/ja/about/careers/how-to-apply/careers-faqs.php$ /ja/careers/how-to-join-aaa/faqs.php permanent;
+rewrite ^/ja/about/careers/aaa-awards.php$ http://qa.aaa.com/careers/life-at-aaa/compensation-and-benefits.php permanent;
+rewrite ^/ja/about/careers/contact-us.php$ /ja/careers/how-to-join-aaa/faqs.php permanent;
+rewrite ^/ja/about/offices/index.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/cambridge.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/blackburn.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/maidenhead.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/sheffield.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/grasbrunn-germany.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/grenoble-france.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/paris.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/sophia-antipolis.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/kfar-saba.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/lund-sweden.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/trondheim-norway.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/sentjernej-slovenia.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/san-jose.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/austin.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/plano-keil.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/boston.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/irvine.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/olympia.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/san-diego.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/seattle.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/shanghai.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/beijing.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/shenzhen.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/seoul.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/yokohama.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/taipei.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/hsinchu-taiwan.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/noida-india.php$ /ja/careers/life-at-aaa/locations-around-the-world.php permanent;
+rewrite ^/ja/about/offices/national-holidays-at-aaa-worldwide-office-locations.php$ /ja/careers/life-at-aaa/office-holidays-around-the-world.php permanent;

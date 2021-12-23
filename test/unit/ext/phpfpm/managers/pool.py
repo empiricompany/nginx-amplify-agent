@@ -36,21 +36,26 @@ class PHPFPMPoolManagerTestCase(PHPFPMTestCase):
         assert_that(found_pools, not_none())
         assert_that(found_pools, has_length(2))
 
-        # This checks the first pool in the found_pools and makes assumptions
-        # as to which one it will be.  This may not be true on other test
-        # systems
-        found_pool = found_pools[0]
-        assert_that(found_pool['parent_id'], equal_to(1))
-        assert_that(found_pool['parent_local_id'], equal_to(
-            'e5942daaa5bf35af722bac3b9582b17c07515f0f77936fb5c7f771c7736cc157'
+        assert_that(found_pools, has_items(
+            {
+                'name': 'www',
+                'file': '/etc/php/7.4/fpm/pool.d/www.conf',
+                'listen': '/run/php/php7.0-fpm.sock',
+                'status_path': '/status',
+                'parent_id': 1,
+                'parent_local_id': '185502c3d367a8036dfda481e8421e9ae04f6d1031375496ee7bddd7f0a5534a',
+                'local_id': 'f53516fd0b4b4924d63e3391a6ebb0f62428f7036fbe0a9643acca681456a3cf'
+            },
+            {
+                'name': 'www2',
+                'file': '/etc/php/7.4/fpm/pool.d/www2.conf',
+                'listen': '127.0.0.1:51',
+                'status_path': '/status',
+                'parent_id': 1,
+                'parent_local_id': '185502c3d367a8036dfda481e8421e9ae04f6d1031375496ee7bddd7f0a5534a',
+                'local_id': '0be82e33e7b26d756f01485837d1ce9a77ed4a560868fb0645426cb3d9ed8b7a'
+            }
         ))
-        assert_that(found_pool['local_id'], equal_to(
-            '6eea242cd7825e81d309458c302b8bd18923812eb99ae70f2e8b5c5fb18d02b3'
-        ))
-        assert_that(found_pool['file'], equal_to('/etc/php5/fpm/pool.d/www.conf'))
-        assert_that(found_pool['name'], equal_to('www'))
-        assert_that(found_pool['listen'], equal_to('/run/php/php7.0-fpm.sock'))
-        assert_that(found_pool['status_path'], equal_to('/status'))
 
     def test_discover_objects(self):
         pool_manager = PHPFPMPoolManager()

@@ -20,7 +20,7 @@ class PlusStatusCollector(AbstractMetricsCollector):
 
     def __init__(self, *args, **kwargs):
         super(PlusStatusCollector, self).__init__(*args, **kwargs)
-        self.last_collect = None
+        self.last_collect = -1
         self.register(*self.collect_index)
 
     def gather_data(self, area=None, name=None):
@@ -89,7 +89,7 @@ class PlusAPICollector(AbstractMetricsCollector):
 
     def __init__(self, *args, **kwargs):
         super(PlusAPICollector, self).__init__(*args, **kwargs)
-        self.last_collect = None
+        self.last_collect = -1
         self.register(*self.collect_index)
 
     def gather_data(self):

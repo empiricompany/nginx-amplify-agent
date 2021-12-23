@@ -29,7 +29,8 @@ class Event(object):
         self.message = message
         self.stamp = int(time.time())
         self.category = 'agent'
-        self.id = hashlib.sha256('%s_%s' % (self.message, self.level)).hexdigest()
+        self.string_id = '%s_%s' % (self.message, self.level)
+        self.id = hashlib.sha256(self.string_id.encode('utf-8')).hexdigest()
         self.counter = 1
 
     def inc(self):
@@ -86,5 +87,5 @@ class EventdClient(CommonDataClient):
 
         return {
             'object': self.object.definition,
-            'events': [event.dict() for event in delivery.itervalues()]
+            'events': [event.dict() for event in delivery.values()]
         }

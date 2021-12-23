@@ -20,6 +20,8 @@ def call(command, check=True):
     """
     subprocess_params = dict(
         shell=True,
+        universal_newlines=True,
+        encoding='utf-8',
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
@@ -31,6 +33,10 @@ def call(command, check=True):
         if process.returncode != 0 and check:
             raise AmplifySubprocessError(message=command, payload=dict(returncode=process.returncode, error=raw_err))
         else:
+            if type(raw_out) == bytes:
+               raw_out = raw_out.decode('utf-8')
+            if type(raw_err) == bytes:
+               raw_err = raw_err.decode('utf-8')
             out = raw_out.split('\n')
             err = raw_err.split('\n')
             return out, err

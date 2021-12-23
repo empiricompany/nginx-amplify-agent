@@ -33,7 +33,7 @@ elif is_deb():
 
 setup(
     name="nginx-amplify-agent",
-    version="1.7.0",
+    version="1.8.0",
     author="Mike Belov",
     author_email="dedm@nginx.com",
     description="NGINX Amplify Agent",
@@ -43,15 +43,15 @@ setup(
         exclude=[
             "*.test", "*.test.*", "test.*", "test",
             "tools", "tools.*",
-            "packages", "packages.*",
-            "amplify.ext.configurator", "amplify.ext.configurator.*"
+            "packages", "packages.*"
         ]
     ),
     package_data={'amplify': [
+        'certifi/*.pem',
         'gevent/*.so',
         'gevent/libev/*.so',
+        'greenlet/*.so',
         'psutil/*.so',
-        '.libs_cffi_backend/*.so.*',
         '*.so',
     ]},
     data_files=data_files,

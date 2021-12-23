@@ -72,7 +72,7 @@ class SystemMetaCollectorTestCase(BaseTestCase):
 
         # get interfaces info
         all_interfaces = netifaces.interfaces()
-        alive_interfaces = set(name for name, iface in psutil.net_if_stats().iteritems() if iface.isup)
+        alive_interfaces = set(name for name, iface in psutil.net_if_stats().items() if iface.isup)
 
         # check interfaces
         for interface_info in meta['network']['interfaces']:
@@ -89,8 +89,8 @@ class SystemMetaCollectorTestCase(BaseTestCase):
 
     def test_collect_each_interface_once(self):
         collector = self.get_collector(collect=False)
-        num_interfaces = len(filter(lambda x: x.isup, psutil.net_if_stats().itervalues()))
-        for x in xrange(3):
+        num_interfaces = len(list(filter(lambda x: x.isup, psutil.net_if_stats().values())))
+        for x in range(3):
             collector.collect()
             meta = collector.object.metad.current
             collected_interfaces = meta['network']['interfaces']

@@ -29,7 +29,7 @@ class NAASLogRecord(logging.LogRecord):
 
 class NAASLogger(logging.getLoggerClass()):
     @staticmethod
-    def makeRecord(name, level, fn, lno, msg, args, exc_info, func=None, extra=None):
+    def makeRecord(name, level, fn, lno, msg, args, exc_info, func=None, extra=None, sinfo=None):
         return NAASLogRecord(name, level, fn, lno, msg, args, exc_info, func)
 
 

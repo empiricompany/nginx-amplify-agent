@@ -26,7 +26,7 @@ def boolean(value):
     }
 
     # if it is a string try to return the string_map value; return False by default (not found)
-    if isinstance(value, basestring):
+    if isinstance(value, str):
         return string_map.get(value.lower(), False)
 
     # otherwise just return the language boolean cast result

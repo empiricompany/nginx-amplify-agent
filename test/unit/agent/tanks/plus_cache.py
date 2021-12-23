@@ -3,12 +3,13 @@ import time
 from collections import deque
 
 from hamcrest import *
-from test.base import BaseTestCase, RealNginxTestCase, nginx_plus_test
 
 from amplify.agent.common.context import context
 from amplify.agent.tanks.plus_cache import PlusCache
 from amplify.agent.managers.nginx import NginxManager
-
+from test.base import (
+    BaseTestCase, RealNginxTestCase, nginx_plus_test, nginx_plus_before_release
+)
 
 __author__ = "Grant Hulegaard"
 __copyright__ = "Copyright (C) Nginx, Inc. All rights reserved."
@@ -49,11 +50,11 @@ class PlusCacheTestCase(BaseTestCase):
         assert_that(self.plus_cache['new'], equal_to(deque(maxlen=3)))
 
     def test_limit(self):
-        for x in xrange(10):
+        for x in range(10):
             self.plus_cache.put('new', x)
 
         assert_that(self.plus_cache['new'], has_length(3))
-        assert_that(self.plus_cache['new'], equal_to(deque([x for x in xrange(10)][-3:])))
+        assert_that(self.plus_cache['new'], equal_to(deque([x for x in range(10)][-3:])))
 
     def test_get_last_none(self):
         last = self.plus_cache.get_last('new')
@@ -74,6 +75,7 @@ class PlusCacheTestCase(BaseTestCase):
 
 class PlusCacheCollectTestCase(RealNginxTestCase):
     @nginx_plus_test
+    @nginx_plus_before_release(r=16)
     def test_plus_status_cache(self):
         time.sleep(1)  # Give N+ some time to start
         manager = NginxManager()
@@ -114,6 +116,7 @@ class PlusCacheCollectTestCase(RealNginxTestCase):
         assert_that(context.plus_cache['https://127.0.0.1:443/api'], not_(has_length(0)))
 
     @nginx_plus_test
+    @nginx_plus_before_release(r=16)
     def test_plus_status_cache_limit(self):
         time.sleep(1)  # Give N+ some time to start
         manager = NginxManager()
@@ -127,7 +130,7 @@ class PlusCacheCollectTestCase(RealNginxTestCase):
         metrics_collector = nginx_obj.collectors[2]
 
         # run plus status - 4 times
-        for x in xrange(4):
+        for x in range(4):
             metrics_collector.plus_status()
             time.sleep(1)
 

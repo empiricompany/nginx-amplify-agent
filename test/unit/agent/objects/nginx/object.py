@@ -11,7 +11,14 @@ from amplify.agent.managers.nginx import NginxManager
 from amplify.agent.objects.nginx.object import NginxObject
 from amplify.agent.collectors.nginx.config import NginxConfigCollector
 from amplify.agent.objects.nginx.config.config import NginxConfig
-from test.base import RealNginxTestCase, RealNginxTempFileTestCase, disabled_test, nginx_plus_test
+from test.base import (
+    RealNginxTestCase,
+    RealNginxTempFileTestCase,
+    disabled_test,
+    nginx_plus_test,
+    nginx_plus_before_release,
+    nginx_plus_after_release,
+)
 from test.helpers import count_calls
 
 __author__ = "Mike Belov"
@@ -61,7 +68,8 @@ class NginxObjectTestCase(RealNginxTestCase):
         super(NginxObjectTestCase, self).teardown_method(method)
 
     @nginx_plus_test
-    def test_plus_status_discovery(self):
+    @nginx_plus_before_release(r=16)
+    def test_plus_status_discovery_before_r16(self):
         """
         Checks that for plus nginx we collect two status urls:
         - one for web link (with server name)
@@ -76,8 +84,30 @@ class NginxObjectTestCase(RealNginxTestCase):
 
         # check all plus status urls
         assert_that(nginx_obj.plus_status_enabled, equal_to(True))
+        assert_that(nginx_obj.status_directive_supported, equal_to(True))
         assert_that(nginx_obj.plus_status_internal_url, equal_to('https://127.0.0.1:443/plus_status'))
         assert_that(nginx_obj.plus_status_external_url, equal_to('https://status.naas.nginx.com:443/plus_status_bad'))
+
+    @nginx_plus_test
+    @nginx_plus_after_release(r=16)
+    def test_plus_status_discovery_after_r16(self):
+        """
+        Checks that for plus nginx we collect two status urls:
+        - one for web link (with server name)
+        - one for agent purposes (local url)
+        """
+        manager = NginxManager()
+        manager._discover_objects()
+        assert_that(manager.objects.objects_by_type[manager.type], has_length(1))
+
+        # get nginx object
+        nginx_obj = manager.objects.objects[manager.objects.objects_by_type[manager.type][0]]
+
+        # check all plus status urls
+        assert_that(nginx_obj.plus_status_enabled, equal_to(True))
+        assert_that(nginx_obj.status_directive_supported, equal_to(False))
+        assert_that(nginx_obj.plus_status_internal_url, none())
+        assert_that(nginx_obj.plus_status_external_url, equal_to('https://status.naas.nginx.com:443/dashboard.html'))
 
     @nginx_plus_test
     def test_api_discovery(self):
@@ -99,7 +129,8 @@ class NginxObjectTestCase(RealNginxTestCase):
         assert_that(nginx_obj.api_external_url, equal_to('https://status.naas.nginx.com:443/api_bad'))
 
     @nginx_plus_test
-    def test_bad_plus_status_discovery(self):
+    @nginx_plus_before_release(r=16)
+    def test_bad_plus_status_discovery_before_r16(self):
         self.stop_first_nginx()
         self.start_second_nginx(conf='nginx_bad_status.conf')
         manager = NginxManager()
@@ -112,8 +143,28 @@ class NginxObjectTestCase(RealNginxTestCase):
 
         # check all plus status urls
         assert_that(nginx_obj.plus_status_enabled, equal_to(True))
+        assert_that(nginx_obj.status_directive_supported, equal_to(True))
         assert_that(nginx_obj.plus_status_internal_url, none())
         assert_that(nginx_obj.plus_status_external_url, equal_to('http://bad.status.naas.nginx.com:82/plus_status'))
+
+    @nginx_plus_test
+    @nginx_plus_after_release(r=16)
+    def test_bad_plus_status_discovery_after_r16(self):
+        self.stop_first_nginx()
+        self.start_second_nginx(conf='nginx_bad_status.conf')
+        manager = NginxManager()
+        manager._discover_objects()
+
+        assert_that(manager.objects.objects_by_type[manager.type], has_length(1))
+
+        # get nginx object
+        nginx_obj = manager.objects.objects[manager.objects.objects_by_type[manager.type][0]]
+
+        # check all plus status urls
+        assert_that(nginx_obj.plus_status_enabled, equal_to(True))
+        assert_that(nginx_obj.status_directive_supported, equal_to(False))
+        assert_that(nginx_obj.plus_status_internal_url, none())
+        assert_that(nginx_obj.plus_status_external_url, equal_to('http://bad.status.naas.nginx.com:82/dashboard.html'))
 
     @nginx_plus_test
     def test_bad_plus_status_discovery_with_config(self):

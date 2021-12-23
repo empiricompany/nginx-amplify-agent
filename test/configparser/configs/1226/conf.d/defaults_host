@@ -1,0 +1,35 @@
+server {
+    listen 206.54.170.34:80 default;
+    listen 206.54.170.35:80 default;
+    listen 206.54.170.36:80 default;
+    listen 206.54.170.37:80 default;
+    listen 206.54.170.38:80 default;
+    listen 206.54.170.39:80 default;
+    listen 206.54.170.40:80 default;
+    listen 206.54.170.41:80 default;
+    listen 206.54.170.42:80 default;
+    listen 206.54.170.43:80 default;
+    listen 206.54.170.44:80 default;
+    listen 206.54.170.45:80 default;
+    listen 206.54.170.46:80 default;
+    listen 206.54.170.47:80 default;
+    listen 206.54.170.48:80 default;
+    listen 206.54.170.49:80 default;
+    listen 206.54.170.50:80 default;
+    listen 206.54.170.51:80 default;
+    listen 206.54.170.52:80 default;
+    listen 206.54.170.53:80 default;
+    listen 206.54.170.54:80 default;
+    listen 206.54.170.55:80 default;
+    listen 206.54.170.56:80 default;
+    listen 206.54.170.57:80 default;
+    listen 206.54.170.58:80 default;
+    listen 206.54.170.60:80 default;
+    listen 206.54.170.61:80 default;
+    listen 206.54.170.62:80 default;
+    status_zone "other:default80";
+
+    access_log /var/log/nginx/ips.log main;
+    return 204;
+}
+

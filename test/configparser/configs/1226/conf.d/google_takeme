@@ -1,0 +1,11 @@
+location =/robots.txt {
+    return 200 "User-agent: *
+Disallow: /
+User-agent: Googlebot
+Allow: /takeme";
+}
+
+location /takeme {
+        add_header Content-Type text/html;
+        return 200 "Hi";
+}

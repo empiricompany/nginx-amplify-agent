@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
+import sys
 import os
 import traceback
 
-from util import shell_call, get_version_and_build, install_pip, install_pip_deps
+from builders.util import shell_call, get_version_and_build, install_pip, get_requirements_for_distro
 
 __author__ = "Mike Belov"
 __copyright__ = "Copyright (C) Nginx, Inc. All rights reserved."
@@ -11,67 +12,47 @@ __maintainer__ = "Mike Belov"
 __email__ = "dedm@nginx.com"
 
 
-def build(package=None):
+def build():
     """
     Builds a rpm package
-
-    :param package: str full package name
     """
-    rpm_topdir = os.path.expanduser('~') + '/rpmbuild'
-    rpm_sources = rpm_topdir + '/SOURCES'
+    pkg_root = os.path.expanduser('~') + '/agent-pkg-root'
+    pkg_final = os.path.expanduser('~') + '/agent-package'
+
+    rpm_specs = pkg_root + '/SPECS'
+    rpm_sources = pkg_root + '/SOURCES'
 
     # get version and build
     version, bld = get_version_and_build()
 
-    # get arch
-    arch = shell_call('uname -m').split('\n')[0]
-
-    # install pip
-    install_pip()
+    if not install_pip():
+        sys.exit(1)
 
     try:
         # delete previous build
-        shell_call('rm -rf %s' % rpm_sources)
+        shell_call('rm -rf %s' % pkg_root)
+        shell_call('rm -rf %s && mkdir %s' % (pkg_final, pkg_final))
 
-        # create default rpmbuild dir
-        try:
-            os.makedirs(rpm_sources)
-        except:
-            pass
+        # create rpmbuild dirs
+        os.makedirs(rpm_specs)
+        os.makedirs(rpm_sources)
 
-        # create a weird setup file, because on _64 machines python will be installed weirdly
-        if arch.endswith('_64'):
-            """
-            [install]
-            install-purelib=$base/lib64/python
-            """
-            shell_call("echo '[install]' > setup.cfg")
-            shell_call("echo 'install-purelib=$base/lib64/python' >> setup.cfg")
+        # prepare sources
+        shell_call('cp packages/nginx-amplify-agent/setup.py ./')
+        shell_call('tar -cz --transform "s,^,nginx-amplify-agent-%s/," -f %s/nginx-amplify-agent-%s.tar.gz LICENSE MANIFEST.in amplify/agent amplify/ext amplify/__init__.py etc/ packages/ nginx-amplify-agent.py setup.py' % (version, rpm_sources, version))
+        shell_call('cp packages/nginx-amplify-agent/rpm/nginx-amplify-agent.service %s' % rpm_sources)
 
-        # install all dependencies
-        install_pip_deps(package=package)
+        # prepare spec
+        shell_call('cp packages/nginx-amplify-agent/rpm/nginx-amplify-agent.spec %s/' % rpm_specs)
+        shell_call('sed -e "s,%%%%AMPLIFY_AGENT_VERSION%%%%,%s,g" -e "s,%%%%AMPLIFY_AGENT_RELEASE%%%%,%s,g" -e "s,%%%%REQUIREMENTS%%%%,%s,g" -i %s/nginx-amplify-agent.spec' % (version, bld, get_requirements_for_distro(), rpm_specs))
 
-        # remove weird file
-        shell_call('rm -rf setup.cfg', important=False)
+        # build rpm packages
+        shell_call('rpmbuild -D "_topdir %s" -ba %s/nginx-amplify-agent.spec' % (pkg_root, rpm_specs))
 
-        # create python package
-        shell_call('cp packages/%s/setup.py ./' % package)
-        shell_call('python setup.py sdist --formats=gztar')
-
-        # copy gz file to rpmbuild/SOURCES/
-        shell_call('cp -r dist/*.gz %s/' % rpm_sources)
-
-        # create rpm package
-        shell_call('cp packages/%s/rpm/%s.service %s' % (package, package, rpm_sources))
-        shell_call(
-            'rpmbuild -D "_topdir %s" -bb packages/%s/rpm/%s.spec --define "amplify_version %s" --define "amplify_release %s"' % (
-                rpm_topdir, package, package, version, bld
-            )
-        )
+        # collect artifacts
+        shell_call('find %s/RPMS/ %s/SRPMS/ -type f -name "*.rpm" -print -exec cp {} %s/ \;' % (pkg_root, pkg_root, pkg_final))
 
         # clean
-        shell_call('rm -r dist', important=False)
-        shell_call('rm -r *.egg-*', important=False)
-        shell_call('rm setup.py', important=False)
+        shell_call('rm -f setup.py', important=False)
     except:
         print(traceback.format_exc())

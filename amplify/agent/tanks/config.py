@@ -19,10 +19,10 @@ class ConfigTank(object):
     """
 
     def __init__(self):
-        self._configs = {} if not hasattr(self, '_configs') else self._configs
-        self._path_index = {} if not hasattr(self, '_path_index') else self._path_index
-        self._name_index = {} if not hasattr(self, '_name_index') else self._name_index
-        self._section_index = {} if not hasattr(self, '_section_index') else self._section_index
+        self._configs = {} if '_configs' not in self.__dict__ else self._configs
+        self._path_index = {} if '_path_index' not in self.__dict__ else self._path_index
+        self._name_index = {} if '_name_index' not in self.__dict__ else self._name_index
+        self._section_index = {} if '_section_index' not in self.__dict__ else self._section_index
 
     def __idx(self, config):
         path = config.filename
@@ -69,14 +69,14 @@ class ConfigTank(object):
         filename = path.split('/')[-1]
         del self._name_index[filename]
 
-        for section, idx in self._section_index.items():
+        for section, idx in list(self._section_index.items()):
             if idx == _current_idx:
                 del self._section_index[section]
 
         del self._configs[_current_idx]
 
     def reindex(self):
-        for config in self._configs.values():
+        for config in list(self._configs.values()):
             self.__idx(config)
 
     def full_index(self):
@@ -228,7 +228,7 @@ class ConfigTank(object):
                 raise KeyError(target)
 
         # iterate through the now split patches and apply them
-        for index, patch in indexed_patch.iteritems():
+        for index, patch in indexed_patch.items():
             config = self._configs[index]
             changes += config.apply(patch)
 

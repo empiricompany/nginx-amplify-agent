@@ -230,11 +230,11 @@ class NginxMetricsCollector(AbstractMetricsCollector):
             'nginx.http.conn.accepted': 'accepts',
             'nginx.http.conn.dropped': 'dropped'
         }
-        for metric_name, stub_name in counted_vars.iteritems():
+        for metric_name, stub_name in counted_vars.items():
             stamp, value = stub_time, stub[stub_name]
             prev_stamp, prev_value = self.previous_counters.get(metric_name, (None, None))
 
-            if isinstance(prev_value, (int, float, long)) and prev_stamp and prev_stamp != stamp:
+            if isinstance(prev_value, (int, float, complex)) and prev_stamp and prev_stamp != stamp:
                 value_delta = value - prev_value
                 self.object.statsd.incr(metric_name, value_delta)
 
@@ -495,9 +495,9 @@ class NginxMetricsCollector(AbstractMetricsCollector):
         write /= 1024
 
         # get deltas and store metrics
-        for metric_name, value in {'nginx.workers.io.kbs_r': read, 'nginx.workers.io.kbs_w': write}.iteritems():
+        for metric_name, value in {'nginx.workers.io.kbs_r': read, 'nginx.workers.io.kbs_w': write}.items():
             prev_stamp, prev_value = self.previous_counters.get(metric_name, (None, None))
-            if isinstance(prev_value, (int, float, long)) and prev_stamp and prev_stamp != current_stamp:
+            if isinstance(prev_value, (int, float, complex)) and prev_stamp and prev_stamp != current_stamp:
                 value_delta = value - prev_value
                 self.object.statsd.incr(metric_name, value_delta)
             self.previous_counters[metric_name] = (current_stamp, value)

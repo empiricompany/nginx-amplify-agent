@@ -1,0 +1,7 @@
+# block one ip
+# deny    192.168.1.1;
+# allow subnets
+# allow   10.0.0.0/16;
+# allow   64.21.212.194;
+# deny all the rest
+# deny    all;

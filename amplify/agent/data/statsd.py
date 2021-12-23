@@ -150,7 +150,7 @@ class StatsdClient(object):
         if 'timer' in delivery:
             timers = {}
             timestamp = int(time.time())
-            for metric_name, metric_values in delivery['timer'].iteritems():
+            for metric_name, metric_values in delivery['timer'].items():
                 if len(metric_values):
                     metric_values.sort()
                     length = len(metric_values)
@@ -169,7 +169,7 @@ class StatsdClient(object):
         # counters
         if 'counter' in delivery:
             counters = {}
-            for k, v in delivery['counter'].iteritems():
+            for k, v in delivery['counter'].items():
                 # Aggregate all observed counters into a single record.
                 last_stamp = v[-1][0]  # Use the oldest timestamp.
                 total_value = 0
@@ -185,7 +185,7 @@ class StatsdClient(object):
         # gauges
         if 'gauge' in delivery:
             gauges = {}
-            for k, v in delivery['gauge'].iteritems():
+            for k, v in delivery['gauge'].items():
                 # Aggregate all observed gauges into a single record.
                 last_stamp = v[-1][0]  # Use the oldest timestamp.
                 total_value = 0
@@ -200,7 +200,7 @@ class StatsdClient(object):
         if 'average' in delivery:
             averages = {}
             timestamp = int(time.time())  # Take a new timestamp here because it is not collected previously.
-            for metric_name, metric_values in delivery['average'].iteritems():
+            for metric_name, metric_values in delivery['average'].items():
                 if len(metric_values):
                     length = len(metric_values)
                     averages['G|%s' % metric_name] = [[timestamp, sum(metric_values) / float(length)]]

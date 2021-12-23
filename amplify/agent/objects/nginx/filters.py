@@ -54,7 +54,7 @@ class Filter(object):
         :param parsed: {} of parsed string
         :return: True of False
         """
-        for filter_key, filter_value in self.data.iteritems():
+        for filter_key, filter_value in self.data.items():
             # if the key isn't in parsed, then it's irrelevant
             if filter_key not in parsed:
                 return False

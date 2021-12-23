@@ -49,7 +49,7 @@ class NginxErrorLogParser(object):
         :param line: log line
         :return: str or None: error
         """
-        for error, regexps in error_re.iteritems():
+        for error, regexps in error_re.items():
             for regexp in regexps:
                 if re.match(regexp, line):
                     return error

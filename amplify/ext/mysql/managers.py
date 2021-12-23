@@ -113,30 +113,32 @@ class MySQLManager(ExtObjectManager):
                 context.log.debug('mysqld is restarting/reloading, pids are changing, agent is waiting')
 
         # check if we left something in objects (MySQL could be stopped or something)
-        dropped_hashes = filter(lambda x: x not in discovered_hashes, existing_hashes)
+        dropped_hashes = list(filter(lambda x: x not in discovered_hashes, existing_hashes))
 
-        if len(dropped_hashes):
-            for dropped_hash in dropped_hashes:
-                for obj in self.objects.find_all(types=self.types):
-                    if obj.definition_hash == dropped_hash:
-                        dropped_obj = obj
-                        break
+        if len(dropped_hashes) == 0:
+            return
 
-            context.log.debug('mysqld was stopped (pid was %s)' % dropped_obj.pid)
+        for dropped_hash in dropped_hashes:
+            for obj in self.objects.find_all(types=self.types):
+                if obj.definition_hash == dropped_hash:
+                    dropped_obj = obj
+                    break
 
-            # stop and un-register children
-            children_objects = self.objects.find_all(
-                obj_id=dropped_obj.id,
-                children=True,
-                include_self=False
-            )
+        context.log.debug('mysqld was stopped (pid was %s)' % dropped_obj.pid)
 
-            for child_obj in children_objects:
-                child_obj.stop()
-                self.objects.unregister(child_obj)
+        # stop and un-register children
+        children_objects = self.objects.find_all(
+            obj_id=dropped_obj.id,
+            children=True,
+            include_self=False
+        )
 
-            dropped_obj.stop()
-            self.objects.unregister(dropped_obj)
+        for child_obj in children_objects:
+            child_obj.stop()
+            self.objects.unregister(child_obj)
+
+        dropped_obj.stop()
+        self.objects.unregister(dropped_obj)
 
     @staticmethod
     def _find_local(ps=None):
@@ -202,7 +204,8 @@ class MySQLManager(ExtObjectManager):
                         context.log.debug('additional info:', exc_info=True)
                     else:
                         # calculate local_id
-                        local_id = hashlib.sha256('%s_%s' % (cmd, conf_path)).hexdigest()
+                        local_string_id = '%s_%s' % (cmd, conf_path)
+                        local_id = hashlib.sha256(local_string_id.encode('utf-8')).hexdigest()
 
                         if pid not in masters:
                             masters[pid] = {}
@@ -221,7 +224,7 @@ class MySQLManager(ExtObjectManager):
 
         # format results
         results = []
-        for payload in masters.itervalues():
+        for payload in masters.values():
             # only add payloads that have all the keys
             if 'cmd' in payload and 'conf_path' in payload and 'pid' in payload and 'local_id' in payload:
                 results.append(payload)
@@ -242,7 +245,8 @@ class MySQLManager(ExtObjectManager):
             conf_path = "/etc/mysql/my.cnf"
 
             # calculate local_id
-            local_id = hashlib.sha256('%s_%s' % (cmd, conf_path)).hexdigest()
+            local_string_id = '%s_%s' % (cmd, conf_path)
+            local_id = hashlib.sha256(local_string_id.encode('utf-8')).hexdigest()
             results.append({
                 'cmd': 'unknown',
                 'conf_path': 'unknown',

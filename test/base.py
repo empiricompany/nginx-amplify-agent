@@ -9,6 +9,7 @@ import random
 import shutil
 import time
 import copy
+from importlib import reload
 
 from unittest import TestCase
 
@@ -18,6 +19,7 @@ from amplify.agent.common.util import configreader, subp, host
 from amplify.agent.common.errors import AmplifySubprocessError
 from amplify.agent.common.context import context
 from amplify.agent.objects.abstract import AbstractObject
+from amplify.agent.objects.nginx.binary import nginx_v
 from amplify.agent.tanks.config import ConfigTank
 
 __author__ = "Mike Belov"
@@ -85,24 +87,6 @@ class BaseControllerTestCase(BaseTestCase):
     def setup_method(self, method):
         super(BaseControllerTestCase, self).setup_method(method)
         context.agent_name = 'controller'
-
-
-class BaseConfiguratorTestCase(BaseControllerTestCase):
-    @pytest.fixture(autouse=True)
-    def setup(self, tmpdir):
-        self.tmpdir = tmpdir
-
-    def setup_method(self, method):
-        super(BaseConfiguratorTestCase, self).setup_method(method)
-        from amplify.ext.configurator.config import ConfiguratorConfig
-        self.original_config = copy.deepcopy(ConfiguratorConfig.config)
-        context.app_config.add(ConfiguratorConfig())
-
-    def teardown_method(self, method):
-        from amplify.ext.configurator.config import ConfiguratorConfig
-        ConfiguratorConfig.config = copy.deepcopy(self.original_config)
-        context.app_config.remove(ConfiguratorConfig())
-        super(BaseConfiguratorTestCase, self).teardown_method(method)
 
 
 class WithConfigTestCase(BaseTestCase):
@@ -181,7 +165,7 @@ class RealNginxTestCase(BaseTestCase):
     def teardown_method(self, method):
         if self.running:
             # use check=False because sometimes this returns code 123 on test-plus for some reason
-            subp.call('pgrep nginx |sudo xargs kill -9', check=False)
+            subp.call('pgrep nginx | xargs kill -9', check=False)
             self.running = False
         super(RealNginxTestCase, self).teardown_method(method)
 
@@ -216,7 +200,7 @@ class RealNginxTempFileTestCase(BaseTestCase):
 
     def teardown_method(self, method):
         # use check=False because sometimes this returns code 123 on test-plus for some reason
-        subp.call('pgrep nginx | sudo xargs kill -9', check=False)
+        subp.call('pgrep nginx | xargs kill -9', check=False)
         subp.call('rm -f %s' % self.conf_path, check=False)
         super(RealNginxTempFileTestCase, self).teardown_method(method)
 
@@ -310,6 +294,29 @@ def nginx_installed():
         return True
     except:
         return False
+
+
+def _nginx_plus_release_installed():
+    release = nginx_v('/usr/sbin/nginx')['plus']['release']
+    return int(release.split('-')[2].lstrip('r'))
+
+
+def nginx_plus_before_release(r):
+    if not nginx_plus_installed():
+        return pytest.mark.skip(reason='This is a test for nginx+')
+    return pytest.mark.skipif(
+        _nginx_plus_release_installed() >= r,
+        reason='This is a test for nginx+ releases before r%s' % r
+    )
+
+
+def nginx_plus_after_release(r):
+    if not nginx_plus_installed():
+        return pytest.mark.skip(reason='This is a test for nginx+')
+    return pytest.mark.skipif(
+        _nginx_plus_release_installed() < r,
+        reason='This is a test for nginx+ releases after r%s' % r
+    )
 
 
 nginx_plus_test = pytest.mark.skipif(not nginx_plus_installed(), reason='This is a test for nginx+')

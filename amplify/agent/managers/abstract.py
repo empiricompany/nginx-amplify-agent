@@ -3,7 +3,7 @@ import abc
 import time
 
 from threading import current_thread
-from gevent.greenlet import GreenletExit
+from greenlet import GreenletExit
 
 from amplify.agent.common.context import context
 from amplify.agent.common.util import subp

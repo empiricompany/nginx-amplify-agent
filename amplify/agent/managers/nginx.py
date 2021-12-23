@@ -181,7 +181,8 @@ class NginxManager(ObjectManager):
                 context.log.debug('nginx is restarting/reloading, pids are changing, agent is waiting')
 
         # check if we left something in objects (nginx could be stopped or something)
-        dropped_hashes = filter(lambda x: x not in discovered_hashes, existing_hashes)
+        dropped_hashes = list(filter(lambda x: x not in discovered_hashes, existing_hashes))
+
         if len(dropped_hashes):
             for dropped_hash in dropped_hashes:
                 for obj in self.objects.find_all(types=self.types):
@@ -259,7 +260,8 @@ class NginxManager(ObjectManager):
                         context.log.debug('', exc_info=True)
                     else:
                         # calculate local id
-                        local_id = hashlib.sha256('%s_%s_%s' % (bin_path, conf_path, prefix)).hexdigest()
+                        local_string_id = '%s_%s_%s' % (bin_path, conf_path, prefix)
+                        local_id = hashlib.sha256(local_string_id.encode('utf-8')).hexdigest()
 
                         if pid not in masters:
                             masters[pid] = {'workers': []}
@@ -286,7 +288,7 @@ class NginxManager(ObjectManager):
 
         # collect results
         results = []
-        for pid, description in masters.iteritems():
+        for pid, description in masters.items():
             if 'bin_path' in description:  # filter workers with non-executable nginx -V (relative paths, etc)
                 definition = {
                     'local_id': description['local_id'],

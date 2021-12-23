@@ -321,7 +321,7 @@ class NginxObject(AbstractObject):
 
     def _setup_access_logs(self):
         # access logs
-        for log_description, log_data in self.config.access_logs.iteritems():
+        for log_description, log_data in self.config.access_logs.items():
             format_name = log_data['log_format']
             log_format = self.config.log_formats.get(format_name)
             tail = self.__setup_pipeline(log_description)
@@ -341,7 +341,7 @@ class NginxObject(AbstractObject):
 
     def _setup_error_logs(self):
         # error logs
-        for log_description, log_data in self.config.error_logs.iteritems():
+        for log_description, log_data in self.config.error_logs.items():
             log_level = log_data['log_level']
             tail = self.__setup_pipeline(log_description)
 

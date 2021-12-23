@@ -112,7 +112,7 @@ class SystemMetricsCollectorTestCase(BaseTestCase):
 
         # get interfaces info
         all_interfaces = netifaces.interfaces()
-        alive_interfaces = set(name for name, iface in psutil.net_if_stats().iteritems() if iface.isup)
+        alive_interfaces = set(name for name, iface in psutil.net_if_stats().items() if iface.isup)
 
         # check
         collected_metrics = collector.object.statsd.current

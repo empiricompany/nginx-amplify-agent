@@ -77,7 +77,7 @@ class ApiHttpCacheCollectorTestCase(BaseTestCase):
             1
         ))
 
-        data = cache_collector.gather_data()
+        data = list(cache_collector.gather_data())
 
         assert_that(data, not_(equal_to([])))
         assert_that(data, has_length(1))
@@ -89,7 +89,7 @@ class ApiHttpCacheCollectorTestCase(BaseTestCase):
 
         # Get the cache collector
         cache_collector = cache_obj.collectors[-1]
-        assert_that(cache_collector.last_collect, equal_to(None))
+        assert_that(cache_collector.last_collect, equal_to(-1))
 
         # Insert some dummy data
         context.plus_cache.put('test_api', (
@@ -241,7 +241,7 @@ class ApiHttpCacheCollectorTestCase(BaseTestCase):
 
         # Get the cache collector
         cache_collector = cache_obj.collectors[-1]
-        assert_that(cache_collector.last_collect, equal_to(None))
+        assert_that(cache_collector.last_collect, equal_to(-1))
 
         # Insert some dummy data
         context.plus_cache.put('test_api', (

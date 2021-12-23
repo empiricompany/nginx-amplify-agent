@@ -1,0 +1,12 @@
+version: '2.4'
+services:
+  test:
+    image: amplify-agent-test-plus-r15:ubuntu1804
+    volumes:
+    - ../:/amplify
+    - /var/lib/mysql
+    networks:
+      - controller-backend
+networks:
+  controller-backend:
+    name: controller-backend

@@ -1,0 +1,14 @@
+server {
+  listen   80;
+  server_name  secure.ggg.net secure.ggg.com secure.ggg.com;
+
+  access_log  /var/log/nginx/secure.net.access.log;
+
+  location / {
+    root   /data/nginx/cacert;
+    autoindex off;
+    #expires 3h;
+    #index  index.html index.htm;
+    #include /etc/nginx/secure.net-cache-headers.conf;
+  }
+}

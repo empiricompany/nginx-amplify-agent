@@ -143,14 +143,14 @@ class AbstractCollector(object):
         metric name - value pairs increments statsd appropriately based on
         previous values.
         """
-        for metric_name, value in self.current_counters.iteritems():
+        for metric_name, value in self.current_counters.items():
             prev_stamp, prev_value = self.previous_counters.get(
                 metric_name, (None, None)
             )
             stamp = self.current_stamps['counters'][metric_name]
             value = self.current_counters[metric_name]
 
-            if isinstance(prev_value, (int, float, long)) and prev_stamp:
+            if isinstance(prev_value, (int, float, complex)) and prev_stamp:
                 value_delta = value - prev_value
                 if value_delta >= 0:
                     # Only increment our statsd client and send data to backend
@@ -175,7 +175,7 @@ class AbstractCollector(object):
         :param counted_vars: Dict Metric_name - Value dict
         :param stamp: Int Timestamp of Plus collect
         """
-        for metric_name, value in counted_vars.iteritems():
+        for metric_name, value in counted_vars.items():
             self.current_counters[metric_name] += value
             if stamp:
                 self.current_stamps['counters'][metric_name] = stamp
@@ -184,7 +184,7 @@ class AbstractCollector(object):
         """
         Go through stored latest variables and send them to the object statsd.
         """
-        for metric_name, value in self.current_latest.iteritems():
+        for metric_name, value in self.current_latest.items():
             stamp = self.current_stamps['latest'][metric_name]
             self.object.statsd.latest(metric_name, value, stamp)
 
@@ -223,8 +223,8 @@ class AbstractCollector(object):
         :param gauge_vars: Dict Metric_Name - Source - Value dict
         :param stamp: Int Timestamp of collect
         """
-        for metric_name, value_map in gauge_vars.iteritems():
-            for source, value in value_map.iteritems():
+        for metric_name, value_map in gauge_vars.items():
+            for source, value in value_map.items():
                 # override current gauge from source with the passed value
                 self.current_gauges[metric_name][source] = value
 
@@ -237,9 +237,9 @@ class AbstractCollector(object):
         Iterate through the stored gauges in self.current_gauges, sum them, and
         then send them to statsd for reporting.
         """
-        for metric_name, value_map in self.current_gauges.iteritems():
+        for metric_name, value_map in self.current_gauges.items():
             total_gauge = 0
-            for source, value in value_map.iteritems():
+            for source, value in value_map.items():
                 total_gauge += value
 
             self.object.statsd.gauge(

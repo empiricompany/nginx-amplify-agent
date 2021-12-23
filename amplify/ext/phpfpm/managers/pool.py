@@ -80,7 +80,7 @@ class PHPFPMPoolManager(ExtObjectManager):
 
             for pool_data in master_config['pools']:
                 # if there are no "missing" (None) values...
-                if not len(filter(lambda x: x is None, pool_data.values())):
+                if not len(list(filter(lambda x: x is None, pool_data.values()))):
                     # ...proceed with creation of a pool object for management
                     pool_data.update(parent_id=master.id)
                     pool_data.update(parent_local_id=master.local_id)
@@ -97,7 +97,7 @@ class PHPFPMPoolManager(ExtObjectManager):
                         lambda t: t[0],
                         filter(
                             lambda t: t[1] is None,
-                            [(k, v) for k, v in pool_data.iteritems()]
+                            [(k, v) for k, v in pool_data.items()]
                         )
                     )
 

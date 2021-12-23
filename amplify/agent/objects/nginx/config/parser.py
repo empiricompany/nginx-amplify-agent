@@ -6,7 +6,11 @@ import re
 import sys
 
 import crossplane
-import scandir
+
+try:
+    from os import scandir, walk
+except ImportError:
+    from scandir import scandir, walk
 
 from amplify.agent.common.context import context
 
@@ -37,7 +41,7 @@ def get_filesystem_info(path):
         info = os.stat(path)
         size = info.st_size
         mtime = int(info.st_mtime)
-        permissions = oct(info.st_mode & 0777).zfill(4)
+        permissions = oct(info.st_mode & 0o0777).zfill(4)
     except Exception as e:
         exc_cls = e.__class__.__name__
         message = 'failed to stat %s do to %s' % (path, exc_cls)
@@ -62,7 +66,7 @@ def _iglob_pattern(pattern):
 
 
 def _getline(filename, lineno):
-    with open(filename) as fp:
+    with open(filename, encoding='utf-8') as fp:
         for i, line in enumerate(fp, start=1):
             if i == lineno:
                 return line.rstrip('\r\n')
@@ -131,7 +135,7 @@ class NginxConfigParser(object):
             self.directories[dirname] = get_filesystem_info(dirname)
             if check:
                 try:
-                    scandir.scandir(dirname)
+                    scandir(dirname)
                 except Exception as e:
                     self._handle_error(dirname, e, is_dir=True)
 
@@ -141,7 +145,7 @@ class NginxConfigParser(object):
             self._add_directory(dirname, check=True)
             try:
                 info = get_filesystem_info(filename)
-                info['lines'] = open(filename).read().count('\n')
+                info['lines'] = open(filename, encoding='utf-8').read().count('\n')
                 self.files[filename] = info
             except Exception as e:
                 self._handle_error(filename, e, is_dir=False)
@@ -156,7 +160,10 @@ class NginxConfigParser(object):
             return
 
         # find the deepest path before the first magic part
-        anchor, after = glob.magic_check.split(pattern, 1)
+        elements = glob.magic_check.split(pattern, 1)
+        anchor = elements[0]
+        after = elements[-1]
+
         anchor, start = anchor.rsplit('/', 1)
 
         offset = anchor.count('/') + 1
@@ -174,7 +181,7 @@ class NginxConfigParser(object):
                 self._handle_error(dirname, e, is_dir=True)
 
         # walk the filesystem to collect file paths (and directory errors)
-        it = scandir.walk(anchor, followlinks=True, onerror=onerror)
+        it = walk(anchor, followlinks=True, onerror=onerror)
         for root, dirs, files in it:
             # get the index of the current path part to use
             index = (root != '/') + root.count('/') - offset
@@ -256,18 +263,18 @@ class NginxConfigParser(object):
                 self._collect_included_files_and_cert_dirs(config['parsed'], include_ssl_certs=include_ssl_certs)
 
         # construct directory_map
-        for dirname, info in self.directories.iteritems():
+        for dirname, info in self.directories.items():
             self.directory_map[dirname] = {'info': info, 'files': {}}
 
-        for dirname, error in self._broken_directories.iteritems():
+        for dirname, error in self._broken_directories.items():
             self.directory_map.setdefault(dirname, {'info': {}, 'files': {}})
             self.directory_map[dirname]['error'] = error
 
-        for filename, info in self.files.iteritems():
+        for filename, info in self.files.items():
             dirname = self._dirname(filename)
             self.directory_map[dirname]['files'][filename] = {'info': info}
 
-        for filename, error in self._broken_files.iteritems():
+        for filename, error in self._broken_files.items():
             dirname = self._dirname(filename)
             self.directory_map[dirname]['files'].setdefault(filename, {'info': {}})
             self.directory_map[dirname]['files'][filename]['error'] = error
@@ -330,7 +337,7 @@ class NginxConfigParser(object):
             yield filename
             try:
                 # search each line for include or ssl_certificate directives
-                with open(filename) as lines:
+                with open(filename, encoding='utf-8') as lines:
                     for line in lines:
                         if not has_directive(line):
                             continue

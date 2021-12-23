@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import os
 
@@ -20,16 +20,13 @@ def rebuild(folder, name, build_args):
         for build_arg in build_args:
             add_build_args += (' --build-arg %s' % build_arg)
 
-    if folder == 'centos6':
-        shell_call('cat packages/*/requirements-old-gevent.txt >> docker/%s/requirements.txt' % folder)
-    else:
-        shell_call('cat packages/*/requirements.txt >> docker/%s/requirements.txt' % folder)
+    shell_call('cat packages/*/requirements.txt >> docker/%s/requirements.txt' % folder)
 
     shell_call('docker build %s -t %s docker/%s' % (add_build_args, name, folder), terminal=True)
     shell_call('rm docker/%s/requirements.txt' % folder)
 
 
-supported_os = ['ubuntu1604', 'ubuntu1604-plus', 'ubuntu1604-mysql8', 'ubuntu1404', 'ubuntu1404-plus', 'debian8', 'centos6', 'centos7', 'alpine', 'gentoo']
+supported_os = ['ubuntu1604', 'ubuntu1604-plus', 'ubuntu1604-mysql8', 'debian8', 'centos7', 'alpine', 'gentoo']
 
 usage = "usage: %prog -h"
 

@@ -2,6 +2,7 @@
 import subprocess
 import sys
 import os
+import distro
 
 __author__ = "Mike Belov"
 __copyright__ = "Copyright (C) Nginx, Inc. All rights reserved."
@@ -10,11 +11,7 @@ __maintainer__ = "Mike Belov"
 __email__ = "dedm@nginx.com"
 
 
-def py_is_version(expected_major, expected_minor):
-    return sys.version_info[:2] == (expected_major, expected_minor)
-
-
-is_python_2_6 = py_is_version(2, 6)
+PIP_MIN_VERSION = '9.0.3'
 
 
 def color_print(message, color='green'):
@@ -39,9 +36,12 @@ def shell_call(cmd, terminal=False, important=True):
     print('\033[32m%s\033[0m' % cmd)
 
     if terminal:
-        os.system(cmd)
+        rc = os.system(cmd)
+        if important and rc != 0:
+            print('\033[31mFAILED!\033[0m')
+            sys.exit(1)
     else:
-        process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process = subprocess.Popen(cmd, shell=True, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         results, errors = process.communicate()
 
         # print normal results
@@ -81,29 +81,66 @@ def change_first_line(filename, first_line):
         f.writelines(lines)
 
 
-def install_pip(python='python'):
-    if is_python_2_6:
-        get_pip_link = 'https://bootstrap.pypa.io/2.6/get-pip.py'
+def get_pip_version():
+    try:
+        import pip as _pip
+    except:
+        return False
+
+    return tuple(map(int, _pip.__version__.split('.')))
+
+
+def install_pip():
+    pip_version = get_pip_version()
+
+    # we are good - pip was found with enough version
+    if pip_version and pip_version >= tuple(map(int, PIP_MIN_VERSION.split('.'))):
+        color_print('Using pip version %s\n' % '.'.join(map(str, pip_version)), color='green')
+        return True
+
+    # pip was found but a version is older than required
+    if pip_version:
+        if os.getenv('FORCE_PIP_INSTALL', 'NO').lower() != 'yes':
+            color_print('ERROR: pip version is lower than required, set FORCE_PIP_INSTALL=YES to overcome or try to upgrade python3-pip package', color='red')
+            return False
+
+        color_print('Upgrading pip', color='yellow')
+        shell_call("%s -m pip install --user 'pip>=%s'" % (sys.executable, PIP_MIN_VERSION), important=True)
+
+    # pip was not found
     else:
-        get_pip_link = 'https://bootstrap.pypa.io/get-pip.py'
+        if os.getenv('FORCE_PIP_INSTALL', 'NO').lower() != 'yes':
+            color_print('ERROR: pip not found, set FORCE_PIP_INSTALL=YES to overcome or try to install python3-pip package', color='red')
+            return False
 
-    shell_call('wget -O get-pip.py --no-check-certificate %s' % get_pip_link)
-    shell_call('%s get-pip.py --user --ignore-installed --upgrade' % python)
+        color_print('Installing pip via get-pip', color='yellow')
+        shell_call('curl -LO https://bootstrap.pypa.io/get-pip.py', important=True)
+        shell_call('%s get-pip.py --user --ignore-installed --upgrade' % sys.executable, important=True)
 
-    if is_python_2_6:
-        shell_call('~/.local/bin/pip install setuptools --user')
-        shell_call('~/.local/bin/pip install setuptools --upgrade --user')
-        shell_call('~/.local/bin/pip install wheel==0.29.0 --user')
+    return True
 
 
-def install_pip_deps(package=None):
-    if is_python_2_6:
-        shell_call(
-            '~/.local/bin/pip install --upgrade --target=amplify --no-compile -r packages/%s/requirements-old-gevent.txt' %
-            package
-        )
+def get_requirements_for_distro():
+    distro_tag_full = "%s%s%s" % (distro.id(), distro.major_version(), distro.minor_version())
+    distro_tag_short = "%s%s" % (distro.id(), distro.major_version())
+    distro_tag_codename = "%s" % distro.codename()
+
+    if os.path.isfile("packages/nginx-amplify-agent/requirements-%s.txt" % distro_tag_full):
+        return "packages/nginx-amplify-agent/requirements-%s.txt" % distro_tag_full
+
+    elif os.path.isfile("packages/nginx-amplify-agent/requirements-%s.txt" % distro_tag_short):
+        return "packages/nginx-amplify-agent/requirements-%s.txt" % distro_tag_short
+
+    elif os.path.isfile("packages/nginx-amplify-agent/requirements-%s.txt" % distro_tag_codename):
+        return "packages/nginx-amplify-agent/requirements-%s.txt" % distro_tag_codename
+
     else:
-        shell_call(
-            '~/.local/bin/pip install --upgrade --target=amplify --no-compile -r packages/%s/requirements.txt' %
-            package
-        )
+        color_print('WARNING: no specific requirements for %s, using default list' % ' '.join(distro.linux_distribution()), color='yellow')
+        return "packages/nginx-amplify-agent/requirements.txt"
+
+
+def install_pip_deps():
+    shell_call(
+        '%s -m pip install --upgrade --target=amplify --no-compile -r %s' %
+        (sys.executable, get_requirements_for_distro())
+    )
