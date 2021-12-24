@@ -516,7 +516,7 @@ case "$os" in
         incr_step
 
         case "$os$release" in
-            rhel8|centos8)
+            rhel8|centos8|amzn2)
                 check_python 3
                 python_supported=3
                 ;;
