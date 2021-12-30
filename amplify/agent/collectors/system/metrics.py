@@ -91,7 +91,12 @@ class SystemMetricsCollector(AbstractMetricsCollector):
         """ cpu """
         cpu_times = psutil.cpu_times_percent()
         self.object.statsd.gauge('system.cpu.user', (cpu_times.user + cpu_times.nice))
-        self.object.statsd.gauge('system.cpu.system', (cpu_times.system + cpu_times.irq + cpu_times.softirq))
+        
+        if hasattr(cpu_times, 'softirq'):
+            self.object.statsd.gauge('system.cpu.system', (cpu_times.system + cpu_times.irq + cpu_times.softirq))
+        else:
+            self.object.statsd.gauge('system.cpu.system', (cpu_times.system + cpu_times.irq))
+
         self.object.statsd.gauge('system.cpu.idle', cpu_times.idle)
 
         if hasattr(cpu_times, 'iowait'):
