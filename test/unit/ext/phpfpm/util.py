@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from hamcrest import (
     assert_that, not_none, equal_to, string_contains_in_order, calling, raises,
-    has_length, not_, starts_with
+    has_length, not_, starts_with, has_entries, has_items
 )
 import os
 
@@ -56,7 +56,10 @@ class PHPFPMUtilsTestCase(PHPFPMTestCase):
         assert_that(parsed_lines, has_length(6))
 
         # just for ease of testing, let's trim the None at the end
-        parsed_lines = filter(lambda item: item is not None, parsed_lines)
+        _parsed_lines = filter(lambda item: item is not None, parsed_lines)
+        parsed_lines = []
+        for p in _parsed_lines:
+            parsed_lines.append(p)
         assert_that(parsed_lines, has_length(5))
 
         master_pid, master_ppid, master_command = parsed_lines[0]
@@ -81,7 +84,7 @@ class PHPFPMUtilsTestCase(PHPFPMTestCase):
 
         parsed_master = MASTER_PARSER(master_command)
         assert_that(parsed_master, not_none())
-        assert_that(parsed_master, equal_to('/etc/php5/fpm/php-fpm.conf'))
+        assert_that(parsed_master, equal_to('/etc/php/7.4/fpm/php-fpm.conf'))
 
     def test_inet_ipv4(self):
         test_address = INET_IPV4(host='localhost', port=80)
@@ -125,7 +128,7 @@ class PHPFPMUtilsTestCase(PHPFPMTestCase):
 
         parsed = LS_PARSER(ls[0])
         assert_that(parsed, not_none())
-        assert_that(parsed, equal_to('/usr/sbin/php5-fpm'))
+        assert_that(parsed, equal_to('/usr/sbin/php-fpm7.4'))
 
     def test_version_parser(self):
         # get master_pid
@@ -139,12 +142,12 @@ class PHPFPMUtilsTestCase(PHPFPMTestCase):
 
         version, raw_line = VERSION_PARSER(bin_path)
         assert_that(version, not_none())
-        assert_that(raw_input, not_none)
+        assert_that(raw_line, not_none)
 
         # these checks may be too specific...will definitely break on alternate
         # systems/versions
-        assert_that(version, equal_to('5.5.9-1'))
-        assert_that(raw_line, starts_with('PHP 5.5.9-1'))
+        assert_that(version, equal_to('7.4.3'))
+        assert_that(raw_line, starts_with('PHP 7.4'))
 
 
 class PHPFPMStatusTestCase(PHPFPMTestCase):
@@ -205,26 +208,26 @@ class PHPFPMStatusTestCase(PHPFPMTestCase):
 
 class PHPFPMConfigTestCase(PHPFPMTestCase):
     def test_old_working_file(self):
-        config = PHPFPMConfig(path='/etc/php5/fpm/php-fpm.conf')
+        config = PHPFPMConfig(path='/etc/php/7.4/fpm/php-fpm.conf')
         assert_that(config, not_none())
-        assert_that(config.parsed, equal_to(
+        assert_that(config.parsed, has_entries(
             {
-                'pools': [
+                'file': '/etc/php/7.4/fpm/php-fpm.conf',
+                'include': ['/etc/php/7.4/fpm/pool.d/*.conf'],
+                'pools': has_items(
                     {
-                        'status_path': '/status',
+                        'file': '/etc/php/7.4/fpm/pool.d/www.conf',
+                        'listen': '/run/php/php7.0-fpm.sock',
                         'name': 'www',
-                        'file': '/etc/php5/fpm/pool.d/www.conf',
-                        'listen': '/run/php/php7.0-fpm.sock'
+                        'status_path': '/status'
                     },
                     {
-                        'status_path': '/status',
+                        'file': '/etc/php/7.4/fpm/pool.d/www2.conf',
+                        'listen': '127.0.0.1:51',
                         'name': 'www2',
-                        'file': '/etc/php5/fpm/pool.d/www2.conf',
-                        'listen': '127.0.0.1:51'
+                        'status_path': '/status'
                     }
-                ],
-                'include': ['/etc/php5/fpm/pool.d/*.conf'],
-                'file': '/etc/php5/fpm/php-fpm.conf'
+                )
             }
         ))
 
@@ -233,9 +236,11 @@ class PHPFPMConfigTestCase(PHPFPMTestCase):
 
         config = PHPFPMConfig(path=conf)
         assert_that(config, not_none())
-        assert_that(config.parsed, equal_to(
+        assert_that(config.parsed, has_entries(
             {
-                'pools': [
+                'file': '/amplify/test/fixtures/phpfpm/new_format/php-fpm.conf',
+                'include': ['php-fpm-7.0.d/*.conf'],
+                'pools': has_items(
                     {
                         'status_path': '/status',
                         'name': 'www',
@@ -243,9 +248,7 @@ class PHPFPMConfigTestCase(PHPFPMTestCase):
                                 'php-fpm-7.0.d/www.conf',
                         'listen': '127.0.0.1:9000'
                     }
-                ],
-                'include': ['php-fpm-7.0.d/*.conf'],
-                'file': '/amplify/test/fixtures/phpfpm/new_format/php-fpm.conf'
+                )
             }
         ))
 
@@ -255,9 +258,12 @@ class PHPFPMConfigTestCase(PHPFPMTestCase):
 
         config = PHPFPMConfig(path=conf)
         assert_that(config, not_none())
-        assert_that(config.parsed, equal_to(
+        assert_that(config.parsed, has_entries(
             {
-                'pools': [
+                'file': '/amplify/test/fixtures/phpfpm/new_format_multi_pool'
+                        '/php-fpm.conf',
+                'include': ['php-fpm.d/*.conf'],
+                'pools': has_items(
                     {
                         'status_path': '/php_status',
                         'name': 'www',
@@ -270,12 +276,9 @@ class PHPFPMConfigTestCase(PHPFPMTestCase):
                         'name': 'www-socket',
                         'file': '/amplify/test/fixtures/phpfpm/new_format_'
                                 'multi_pool/php-fpm.d/www-socket.conf',
-                        'listen': '/var/run/php5-fpm.sock'
+                        'listen': '/var/run/php/php7.0-fpm.sock'
                     }
-                ],
-                'include': ['php-fpm.d/*.conf'],
-                'file': '/amplify/test/fixtures/phpfpm/new_format_multi_pool'
-                        '/php-fpm.conf'
+                )
             }
         ))
 
@@ -300,26 +303,26 @@ class PHPFPMConfigTestCase(PHPFPMTestCase):
 
         config = PHPFPMConfig(path=conf)
         assert_that(config, not_none())
-        assert_that(config.parsed, equal_to(
+        assert_that(config.parsed, has_entries(
             {
-                'pools': [
+                'file': '/amplify/test/fixtures/phpfpm/new_format_no_values'
+                        '/php-fpm.conf',
+                'include': ['php-fpm.d/*.conf'],
+                'pools': has_items(
                     {
-                        'status_path': None,
                         'name': 'www',
                         'file': '/amplify/test/fixtures/phpfpm/new_format_'
                                 'no_values/php-fpm.d/www.conf',
-                        'listen': '9000'
+                        'listen': '9000',
+                        'status_path': None
                     },
                     {
-                        'status_path': '/php_status',
                         'name': 'www-socket',
                         'file': '/amplify/test/fixtures/phpfpm/new_format_'
                                 'no_values/php-fpm.d/www-socket.conf',
-                        'listen': None
+                        'listen': None,
+                        'status_path': '/php_status'
                     }
-                ],
-                'include': ['php-fpm.d/*.conf'],
-                'file': '/amplify/test/fixtures/phpfpm/new_format_no_values'
-                        '/php-fpm.conf'
+                )
             }
         ))

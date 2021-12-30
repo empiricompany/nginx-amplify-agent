@@ -49,7 +49,7 @@ def parse_key(string):
     :return: str Variable name
     """
     chars_to_remove = ['$', '{', '}']
-    return string.translate(None, ''.join(chars_to_remove))
+    return string.translate((str.maketrans('', '', ''.join(chars_to_remove))))
 
 
 def decompose_format(string, full=False):

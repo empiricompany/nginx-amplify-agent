@@ -1,4 +1,0 @@
-test:
-  image: amplify-agent-test-vanilla
-  volumes:
-   - ../log:/amplify/log

@@ -1,0 +1,57 @@
+http {
+    upstream web_rack {
+        zone upstream-backend 64k;
+	server 120.9.5.22:80;
+        server 120.9.5.23:80;
+        #server 10.0.0.3:80;
+    }
+
+    proxy_cache_path /data/nginx/cache levels=1:2 keys_zone=one:5min max)size=50m;
+    proxy_cache_key "$scheme$request_method$host$request_uri$is_args$args";
+    proxy_cache_valid 200 302 10m;
+    proxy_cache_valid 404 1m;
+
+    server {
+	proxy_cache one;
+        proxy_cache_bypass $http_cache_control;
+        add_header X-Proxy-Cache $upstream_cache_status;
+        listen 80;
+	status_zone backend-servers;
+        server_name test1.ddd.com;
+        location / {
+            proxy_pass http://web_rack;
+            health_check interval-10 fails=3 passes=2;
+        }
+    }
+
+      server {
+        proxy_cache one;
+        proxy_cache_bypass $http_cache_control;
+        add_header X-Proxy-Cache $upstream_cache_status;
+        listen 80;
+        status_zone backend-servers;
+        server_name test2.ddd.com;
+        root /usr/share/nginx/html/test2
+	location / {
+            proxy_pass http://10.9.5.22;
+            health_check interval-10 fails=3 passes=2;
+        }
+    }
+
+}
+
+stream {
+    upstream db {
+        zone   mysql-backend 64k; 
+        server 120.200.203.201:3306;
+        server 120.200.203.202:3306;
+        server 120.200.203.203:3306;
+    }
+
+    server {
+        listen 3306;
+        status-zone db-servers;
+        proxy_pass db;
+        proxy_connect_timeout 1s; # detect failure quickly
+    }
+}

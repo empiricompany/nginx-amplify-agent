@@ -6,7 +6,12 @@ from hamcrest import *
 from amplify.agent.common.util import plus
 from amplify.agent.managers.nginx import NginxManager
 from amplify.agent.collectors.nginx.metrics import NginxMetricsCollector
-from test.base import RealNginxTestCase, nginx_plus_test
+from test.base import (
+    RealNginxTestCase,
+    nginx_plus_test,
+    nginx_plus_before_release,
+    nginx_plus_after_release,
+)
 
 __author__ = "Mike Belov"
 __copyright__ = "Copyright (C) Nginx, Inc. All rights reserved."
@@ -65,7 +70,7 @@ class NginxMetricsTestCase(RealNginxTestCase):
         assert_that(counters, has_item('nginx.http.conn.accepted'))
         assert_that(counters, has_item('nginx.http.request.count'))
         assert_that(counters, has_item('nginx.http.conn.dropped'))
-        for key, counter in counters.iteritems():
+        for key, counter in counters.items():
             for metric in counters[key]:
                 assert_that(isinstance(metric[0], int))
                 assert_that(isinstance(metric[1], int))
@@ -79,12 +84,13 @@ class NginxMetricsTestCase(RealNginxTestCase):
         assert_that(gauges, has_item('nginx.http.request.current'))
         assert_that(gauges, has_item('nginx.http.request.writing'))
         assert_that(gauges, has_item('nginx.http.request.reading'))
-        for key, gauge in gauges.iteritems():
+        for key, gauge in gauges.items():
             for metric in gauges[key]:
                 assert_that(isinstance(metric[0], int))
                 assert_that(isinstance(metric[1], int))
 
     @nginx_plus_test
+    @nginx_plus_before_release(r=16)
     def test_plus_status(self):
         time.sleep(1)  # Give N+ some time to start
         manager = NginxManager()
@@ -112,7 +118,7 @@ class NginxMetricsTestCase(RealNginxTestCase):
         assert_that(counters, has_item('plus.http.ssl.handshakes'))
         assert_that(counters, has_item('plus.http.ssl.failed'))
         assert_that(counters, has_item('plus.http.ssl.reuses'))
-        for key, counter in counters.iteritems():
+        for key, counter in counters.items():
             for metric in counters[key]:
                 assert_that(isinstance(metric[0], int))
                 assert_that(isinstance(metric[1], int))
@@ -124,7 +130,7 @@ class NginxMetricsTestCase(RealNginxTestCase):
         assert_that(gauges, has_item('nginx.http.conn.current'))
         assert_that(gauges, has_item('nginx.http.conn.idle'))
         assert_that(gauges, has_item('nginx.http.request.current'))
-        for key, gauge in gauges.iteritems():
+        for key, gauge in gauges.items():
             for metric in gauges[key]:
                 assert_that(isinstance(metric[0], int))
                 assert_that(isinstance(metric[1], int))
@@ -158,7 +164,7 @@ class NginxMetricsTestCase(RealNginxTestCase):
         assert_that(counters, has_item('plus.http.ssl.failed'))
         assert_that(counters, has_item('plus.http.ssl.reuses'))
         assert_that(counters, has_item('plus.proc.respawned'))
-        for key, counter in counters.iteritems():
+        for key, counter in counters.items():
             for metric in counters[key]:
                 assert_that(isinstance(metric[0], int))
                 assert_that(isinstance(metric[1], int))
@@ -170,7 +176,7 @@ class NginxMetricsTestCase(RealNginxTestCase):
         assert_that(gauges, has_item('nginx.http.conn.current'))
         assert_that(gauges, has_item('nginx.http.conn.idle'))
         assert_that(gauges, has_item('nginx.http.request.current'))
-        for key, gauge in gauges.iteritems():
+        for key, gauge in gauges.items():
             for metric in gauges[key]:
                 assert_that(isinstance(metric[0], int))
                 assert_that(isinstance(metric[1], int))
@@ -178,12 +184,13 @@ class NginxMetricsTestCase(RealNginxTestCase):
         # check timers
         assert_that(metrics, has_item('timer'))
         timers = metrics['timer']
-        for key, timer in timers.iteritems():
+        for key, timer in timers.items():
             for metric in timers[key]:
                 assert_that(isinstance(metric, float))
 
     @nginx_plus_test
-    def test_plus_api_unsupported_and_fallback_to_status(self):
+    @nginx_plus_before_release(r=16)
+    def test_plus_api_unsupported_and_fallback_before_r16(self):
         """
         Checks that api_enabled is set to False if no supported API version is found
         """
@@ -198,7 +205,9 @@ class NginxMetricsTestCase(RealNginxTestCase):
 
         # api_enabled should be set to false in metrics collector __init__
         assert_that(nginx_obj.api_enabled, equal_to(False))
+        assert_that(nginx_obj.status_directive_supported, equal_to(True))
         assert_that(nginx_obj.plus_status_enabled, equal_to(True))
+        assert_that(nginx_obj.stub_status_enabled, equal_to(True))
 
         metrics_collector = nginx_obj.collectors[2]
 
@@ -229,7 +238,54 @@ class NginxMetricsTestCase(RealNginxTestCase):
         assert_that(gauges, has_item('nginx.http.request.current'))
 
     @nginx_plus_test
-    def test_global_metrics_priority_api_disabled(self):
+    @nginx_plus_after_release(r=16)
+    def test_plus_api_unsupported_and_fallback_after_r16(self):
+        """
+        Checks that api_enabled is set to False if no supported API version is found
+        """
+        plus.SUPPORTED_API_VERSIONS = [0]
+
+        time.sleep(1)
+        manager = NginxManager()
+        manager._discover_objects()
+        assert_that(manager.objects.objects_by_type[manager.type], has_length(1))
+
+        nginx_obj = manager.objects.objects[manager.objects.objects_by_type[manager.type][0]]
+
+        # api_enabled should be set to false in metrics collector __init__
+        assert_that(nginx_obj.api_enabled, equal_to(False))
+        assert_that(nginx_obj.status_directive_supported, equal_to(False))
+        assert_that(nginx_obj.plus_status_enabled, equal_to(True))
+        assert_that(nginx_obj.stub_status_enabled, equal_to(True))
+
+        metrics_collector = nginx_obj.collectors[2]
+
+        # run plus status - twice, because counters will appear only on the second run
+        metrics_collector.global_metrics()
+        time.sleep(1)
+        metrics_collector.global_metrics()
+
+        # check counters
+        metrics = nginx_obj.statsd.current
+        assert_that(metrics, has_item('counter'))
+        counters = metrics['counter']
+        assert_that(counters, has_item('nginx.http.conn.accepted'))
+        assert_that(counters, has_item('nginx.http.request.count'))
+        assert_that(counters, has_item('nginx.http.conn.dropped'))
+
+        # metrics from plus_status() were not collected
+        assert_that(counters, not_(has_item('plus.http.ssl.handshakes')))
+        assert_that(counters, not_(has_item('plus.http.ssl.failed')))
+        assert_that(counters, not_(has_item('plus.http.ssl.reuses')))
+
+        # metrics from stub_status() were collected
+        gauges = metrics['gauge']
+        assert_that(gauges, has_item('nginx.http.request.writing'))
+        assert_that(gauges, has_item('nginx.http.request.reading'))
+
+    @nginx_plus_test
+    @nginx_plus_before_release(r=16)
+    def test_global_metrics_priority_api_disabled_before_r16(self):
         """
         Checks that if we can reach plus status then we don't use stub_status
         """
@@ -244,6 +300,7 @@ class NginxMetricsTestCase(RealNginxTestCase):
 
         # check that it has n+ status and stub_status enabled
         assert_that(nginx_obj.plus_status_enabled, equal_to(True))
+        assert_that(nginx_obj.status_directive_supported, equal_to(True))
         assert_that(nginx_obj.stub_status_enabled, equal_to(True))
 
         # get metrics collector - the third in the list
@@ -277,6 +334,41 @@ class NginxMetricsTestCase(RealNginxTestCase):
         assert_that(gauges, has_item('nginx.http.conn.current'))
         assert_that(gauges, has_item('nginx.http.conn.idle'))
         assert_that(gauges, has_item('nginx.http.request.current'))
+
+    @nginx_plus_test
+    @nginx_plus_after_release(r=16)
+    def test_global_metrics_priority_api_disabled_after_r16(self):
+        """
+        Checks that if we can reach plus status then we don't use stub_status
+        """
+        time.sleep(1)  # Give N+ some time to start
+        manager = NginxManager()
+        manager._discover_objects()
+        assert_that(manager.objects.objects_by_type[manager.type], has_length(1))
+
+        # get nginx object
+        nginx_obj = manager.objects.objects[manager.objects.objects_by_type[manager.type][0]]
+        nginx_obj.api_enabled = False
+
+        # check that it has n+ status and stub_status enabled
+        assert_that(nginx_obj.plus_status_enabled, equal_to(True))
+        assert_that(nginx_obj.status_directive_supported, equal_to(False))
+        assert_that(nginx_obj.stub_status_enabled, equal_to(True))
+
+        # get metrics collector - the third in the list
+        metrics_collector = nginx_obj.collectors[2]
+
+        # run status twice
+        metrics_collector.global_metrics()
+        time.sleep(1)
+        metrics_collector.global_metrics()
+
+        # check gauges - we should see request.writing and request.reading
+        # here because plus_status() was not called so stub_status() was
+        metrics = nginx_obj.statsd.current
+        gauges = metrics['gauge']
+        assert_that(gauges, has_item('nginx.http.request.writing'))
+        assert_that(gauges, has_item('nginx.http.request.reading'))
 
     @nginx_plus_test
     def test_global_metrics_priority_api_enabled(self):
@@ -378,6 +470,3 @@ class NginxMetricsTestCase(RealNginxTestCase):
         # ensure nginx.master.reloads is present as a gauge
         counter = metrics['counter']
         assert_that(counter, has_item('nginx.master.reloads'))
-
-            
-

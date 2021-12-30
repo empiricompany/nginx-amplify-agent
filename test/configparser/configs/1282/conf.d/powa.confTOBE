@@ -1,0 +1,63 @@
+split_clients $remote_addr $index_split {
+   50% 64;
+   *   65;
+}
+split_clients $remote_addr $search_split {
+   50% 60;
+   *   61;
+}
+
+map $uri $index_no {
+   ~^/production_1921_eee587a96470d530ab44c79e49f3b18a 64;
+   ~^/production_1968_e5607e9651a1b6cb0e227d6e64825622 64;
+   ...
+   defaul $index_split;
+}
+map $uri $search_no {
+   ~^/production_1921_eee587a96470d530ab44c79e49f3b18a 60;
+   ~^/production_1968_e5607e9651a1b6cb0e227d6e64825622 60;
+   ...
+   defaul $search_split;
+}
+
+upstream powasearch01 {
+	server 10.105.137.60 route=60;
+	server 10.105.137.61 route=61;
+        sticky route $search_no;
+	zone powasearch01 64k;
+}
+
+upstream powaindex01 {
+	server 10.105.137.64 route=64;
+	server 10.105.137.65 route=65;
+        sticky route $index_no;
+	zone powaindex01 64k;
+}
+
+server {
+   listen 10.105.137.230:80;
+   server_name indexlb.powa.llll.com
+               index.powa.llll.com
+   ;
+   status_zone index;
+
+   proxy_set_header Host $host;
+
+   location / {
+       proxy_pass http://powaindex01;
+   }
+}
+server {
+   listen 10.105.137.228:80;
+   server_name searchlb.powa.llll.com
+               search.powa.llll.com
+   ;
+   status_zone search;
+
+   proxy_set_header Host $host;
+
+   location / {
+       proxy_pass http://powasearch01;
+   }
+}
+

@@ -84,7 +84,7 @@ class StatusManager(ObjectManager):
             }
 
             # for each instance of each kind of object
-            for key, cls in status_object_map.iteritems():
+            for key, cls in status_object_map.items():
                 for name in plus_payload.get(key, []):
                     # discover the object
                     obj_hash = cls.hash_local(nginx.local_id, cls.type, name)
@@ -96,11 +96,10 @@ class StatusManager(ObjectManager):
                         self.objects.register(new_obj, parent_id=nginx.id)
 
         dropped_hashes = filter(lambda x: x not in discovered_hashes, existing_hashes)
-        if len(dropped_hashes):
-            for obj in self._status_objects():
-                if obj.local_id in dropped_hashes:
-                    obj.stop()
-                    self.objects.unregister(obj)
+        for obj in self._status_objects():
+            if obj.local_id in dropped_hashes:
+                obj.stop()
+                self.objects.unregister(obj)
 
     def _start_objects(self):
         for managed_obj in self._status_objects():

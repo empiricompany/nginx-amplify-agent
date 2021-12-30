@@ -37,7 +37,7 @@ class Context(Singleton):
 
         # define vars
         self.cpu_last_check = 0
-        self.version_semver = (1, 7, 0)
+        self.version_semver = (1, 8, 0)
         self.version_build = 1
         self.uuid = None
         self.version = '%s-%s' % ('.'.join(map(str, self.version_semver)), self.version_build)
@@ -68,7 +68,7 @@ class Context(Singleton):
 
         # ring 0 thread_id set up and protect
         self.setup_thread_id()
-        self.supervisor_thread_id = self.ids.keys()[0]
+        self.supervisor_thread_id = list(self.ids.keys())[0]
 
         self.setup_environment()
 
@@ -196,7 +196,7 @@ class Context(Singleton):
             tags = filter(len, map(str.strip, line.split(',')))
 
         # if 'tags' is a single quoted string, don't create a tag for each character
-        if isinstance(tags, (str, unicode)):
+        if isinstance(tags, str):
             tags = [tags]
 
         self.tags = []

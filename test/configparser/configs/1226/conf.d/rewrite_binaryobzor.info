@@ -1,0 +1,3 @@
+    location / {
+        rewrite ^(.*)$ http://binaryobzor.info$1;
+    }

@@ -52,6 +52,6 @@ CONTAINER_MAP = {
 
 
 def container_environment():
-    for container_type, check in CONTAINER_MAP.iteritems():
+    for container_type, check in CONTAINER_MAP.items():
         if check():
             return container_type

@@ -23,10 +23,9 @@ class MySQLTestCase(BaseTestCase):
     @classmethod
     def setup_class(cls):
         # init mysql
-        subp.call('mysqld --init-file=/mysql.init &', check=False)
-        time.sleep(1.5)
+        subp.call('service mysql start', check=False)
+        subp.call("mysql -e \"CREATE USER IF NOT EXISTS 'amplify-agent'@'localhost' IDENTIFIED BY 'amplify-agent';\"")
         subp.call('service mysql stop')
-        time.sleep(2)
 
     def setup_method(self, method):
         super(MySQLTestCase, self).setup_method(method)
@@ -38,24 +37,20 @@ class MySQLTestCase(BaseTestCase):
         if self.running:
             self.stop_mysqld()
         super(MySQLTestCase, self).teardown_method(method)
-        time.sleep(1.5)
 
     def start_mysqld(self):
         if not self.running:
             subp.call('service mysql start')
-            time.sleep(1.5)
             self.running = True
 
     def stop_mysqld(self):
         if self.running:
             subp.call('service mysql stop')
-            time.sleep(1.5)
             self.running = False
 
     def restart_mysqld(self):
         if self.running:
             subp.call('service mysql restart')
-            time.sleep(1.5)
 
 
 class MySQLSupervisordTestCase(MySQLTestCase):
@@ -70,10 +65,9 @@ class MySQLSupervisordTestCase(MySQLTestCase):
         subp.call('supervisord -c /etc/supervisord.conf')
 
         # init mysql
-        subp.call('mysqld --init-file=/mysql.init &', check=False)
-        time.sleep(1.5)
+        subp.call('service mysql start', check=False)
+        subp.call("mysql -e \"CREATE USER IF NOT EXISTS 'amplify-agent'@'localhost' IDENTIFIED BY 'amplify-agent';\"")
         subp.call('service mysql stop')
-        time.sleep(2)
 
     @classmethod
     def teardown_class(cls):
@@ -82,16 +76,13 @@ class MySQLSupervisordTestCase(MySQLTestCase):
     def start_mysqld(self):
         if not self.running:
             subp.call('supervisorctl -c /etc/supervisord.conf start mysqld')
-            time.sleep(1.5)
         self.running = True
 
     def stop_mysql(self):
         if self.running:
             subp.call('supervisorctl -c /etc/supervisord.conf stop mysqld')
-            time.sleep(1.5)
         self.running = False
 
     def restart_mysqld(self):
         if self.running:
             subp.call('supervisorctl -c /etc/supervisord.conf restart mysqld')
-            time.sleep(1.5)

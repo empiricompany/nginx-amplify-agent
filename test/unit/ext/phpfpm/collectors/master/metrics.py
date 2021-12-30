@@ -102,7 +102,7 @@ class PHPFPMMetricsCollectorTestCase(PHPFPMTestCase):
         assert_that(counters['php.fpm.slow_req'][0][1], equal_to(4))
         assert_that(counters['php.fpm.conn.accepted'][0][1], equal_to(2))
 
-        for metric_records in counters.itervalues():
+        for metric_records in counters.values():
             # get stamp from first recording in records
             stamp = metric_records[0][0]
             assert_that(stamp, equal_to(2))
@@ -158,7 +158,7 @@ class PHPFPMMetricsCollectorTestCase(PHPFPMTestCase):
         assert_that(gauges['php.fpm.proc.active'][0][1], equal_to(2))
         assert_that(gauges['php.fpm.proc.total'][0][1], equal_to(4))
 
-        for key, metric_record in gauges.iteritems():
+        for key, metric_record in gauges.items():
             if key not in tracked_gauges_source1:
                 # skip stuff that doesnt need aggregation - object status metric
                 continue

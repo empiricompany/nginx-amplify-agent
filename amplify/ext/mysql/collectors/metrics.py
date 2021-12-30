@@ -34,7 +34,7 @@ METRICS = {
     }
 }
 
-REQUIRED_STATUS_FIELDS = METRICS['counters'].values() + METRICS['gauges'].values()
+REQUIRED_STATUS_FIELDS = list(METRICS['counters'].values()) + list(METRICS['gauges'].values())
 
 
 class MySQLMetricsCollector(AbstractMetricsCollector):
@@ -62,7 +62,7 @@ class MySQLMetricsCollector(AbstractMetricsCollector):
         conn = self.object.connect()
         result = {}
         try:
-            with conn as cursor:
+            with conn.cursor() as cursor:
                 for key in REQUIRED_STATUS_FIELDS:
                     cursor.execute('SHOW GLOBAL STATUS LIKE "%s";' % key)
                     row = cursor.fetchone()
@@ -76,7 +76,7 @@ class MySQLMetricsCollector(AbstractMetricsCollector):
 
         # counters
         counted_vars = {}
-        for metric, variable_name in METRICS['counters'].iteritems():
+        for metric, variable_name in METRICS['counters'].items():
             if variable_name in result:
                 counted_vars[metric] = int(result[variable_name])
 
@@ -90,7 +90,7 @@ class MySQLMetricsCollector(AbstractMetricsCollector):
 
         # gauges
         tracked_gauges = {}
-        for metric, variable_name in METRICS['gauges'].iteritems():
+        for metric, variable_name in METRICS['gauges'].items():
             if variable_name in result:
                 tracked_gauges[metric] = {
                     self.object.definition_hash: int(result[variable_name])

@@ -41,7 +41,7 @@ class SupervisorTestCase(RealNginxTestCase):
         supervisor = Supervisor()
 
         supervisor.init_object_managers()
-        for manager in supervisor.object_managers.itervalues():
+        for manager in supervisor.object_managers.values():
             manager._discover_objects()
 
         old_object_configs = deepcopy(supervisor.object_managers['nginx'].object_configs)
@@ -55,7 +55,7 @@ class SupervisorTestCase(RealNginxTestCase):
             old_restart_time = supervisor.last_cloud_talk_restart
             supervisor.talk_to_cloud(force=True)
 
-        for manager in supervisor.object_managers.itervalues():
+        for manager in supervisor.object_managers.values():
             manager._discover_objects()
 
         assert_that(supervisor.last_cloud_talk_restart, not_(equal_to(old_restart_time)))
@@ -77,7 +77,7 @@ class SupervisorTestCase(RealNginxTestCase):
         supervisor = Supervisor()
 
         supervisor.init_object_managers()
-        for manager in supervisor.object_managers.itervalues():
+        for manager in supervisor.object_managers.values():
             manager._discover_objects()
 
         with requests_mock.mock() as m:
@@ -89,7 +89,7 @@ class SupervisorTestCase(RealNginxTestCase):
             # first talk change
             supervisor.talk_to_cloud(force=True)
 
-        for manager in supervisor.object_managers.itervalues():
+        for manager in supervisor.object_managers.values():
             manager._discover_objects()
 
         time.sleep(1)
@@ -104,7 +104,7 @@ class SupervisorTestCase(RealNginxTestCase):
             old_restart_time = deepcopy(supervisor.last_cloud_talk_restart)
             supervisor.talk_to_cloud(force=True)
 
-        for manager in supervisor.object_managers.itervalues():
+        for manager in supervisor.object_managers.values():
             manager._discover_objects()
 
         assert_that(supervisor.last_cloud_talk_restart, equal_to(old_restart_time))
@@ -119,7 +119,7 @@ class SupervisorTestCase(RealNginxTestCase):
         #       (true/false rather than false/true) breaks this test.
 
         supervisor.init_object_managers()
-        for manager in supervisor.object_managers.itervalues():
+        for manager in supervisor.object_managers.values():
             manager._discover_objects()
 
         with requests_mock.mock() as m:
@@ -131,7 +131,7 @@ class SupervisorTestCase(RealNginxTestCase):
             # first talk change
             supervisor.talk_to_cloud(force=True)
 
-        for manager in supervisor.object_managers.itervalues():
+        for manager in supervisor.object_managers.values():
             manager._discover_objects()
 
         time.sleep(1)
@@ -146,7 +146,7 @@ class SupervisorTestCase(RealNginxTestCase):
             old_restart_time = deepcopy(supervisor.last_cloud_talk_restart)
             supervisor.talk_to_cloud(force=True)
 
-        for manager in supervisor.object_managers.itervalues():
+        for manager in supervisor.object_managers.values():
             manager._discover_objects()
 
         assert_that(supervisor.last_cloud_talk_restart, equal_to(old_restart_time))
@@ -165,7 +165,7 @@ class SupervisorTestCase(RealNginxTestCase):
             old_restart_time = deepcopy(supervisor.last_cloud_talk_restart)
             supervisor.talk_to_cloud(force=True)
 
-        for manager in supervisor.object_managers.itervalues():
+        for manager in supervisor.object_managers.values():
             manager._discover_objects()
 
         assert_that(supervisor.last_cloud_talk_restart, not_(equal_to(old_restart_time)))
@@ -181,7 +181,7 @@ class SupervisorTestCase(RealNginxTestCase):
         supervisor = Supervisor()
 
         supervisor.init_object_managers()
-        for manager in supervisor.object_managers.itervalues():
+        for manager in supervisor.object_managers.values():
             manager._discover_objects()
 
         with requests_mock.mock() as m:
@@ -193,7 +193,7 @@ class SupervisorTestCase(RealNginxTestCase):
             # first talk change
             supervisor.talk_to_cloud(force=True)
 
-        for manager in supervisor.object_managers.itervalues():
+        for manager in supervisor.object_managers.values():
             manager._discover_objects()
 
         time.sleep(1)
@@ -208,7 +208,7 @@ class SupervisorTestCase(RealNginxTestCase):
             old_restart_time = deepcopy(supervisor.last_cloud_talk_restart)
             supervisor.talk_to_cloud(force=True)
 
-        for manager in supervisor.object_managers.itervalues():
+        for manager in supervisor.object_managers.values():
             manager._discover_objects()
 
         assert_that(supervisor.last_cloud_talk_restart, equal_to(old_restart_time))
@@ -227,7 +227,7 @@ class SupervisorTestCase(RealNginxTestCase):
             old_restart_time = deepcopy(supervisor.last_cloud_talk_restart)
             supervisor.talk_to_cloud(force=True)
 
-        for manager in supervisor.object_managers.itervalues():
+        for manager in supervisor.object_managers.values():
             manager._discover_objects()
 
         assert_that(supervisor.last_cloud_talk_restart, not_(equal_to(old_restart_time)))
@@ -243,7 +243,7 @@ class SupervisorTestCase(RealNginxTestCase):
         supervisor = Supervisor()
 
         supervisor.init_object_managers()
-        for manager in supervisor.object_managers.itervalues():
+        for manager in supervisor.object_managers.values():
             manager._discover_objects()
 
         with requests_mock.mock() as m:
@@ -255,7 +255,7 @@ class SupervisorTestCase(RealNginxTestCase):
             # first talk change
             supervisor.talk_to_cloud(force=True)
 
-        for manager in supervisor.object_managers.itervalues():
+        for manager in supervisor.object_managers.values():
             manager._discover_objects()
 
         time.sleep(1)
@@ -270,7 +270,7 @@ class SupervisorTestCase(RealNginxTestCase):
             old_restart_time = deepcopy(supervisor.last_cloud_talk_restart)
             supervisor.talk_to_cloud(force=True)
 
-        for manager in supervisor.object_managers.itervalues():
+        for manager in supervisor.object_managers.values():
             manager._discover_objects()
 
         assert_that(supervisor.last_cloud_talk_restart, equal_to(old_restart_time))
@@ -289,7 +289,7 @@ class SupervisorTestCase(RealNginxTestCase):
             old_restart_time = deepcopy(supervisor.last_cloud_talk_restart)
             supervisor.talk_to_cloud(force=True)
 
-        for manager in supervisor.object_managers.itervalues():
+        for manager in supervisor.object_managers.values():
             manager._discover_objects()
 
         assert_that(supervisor.last_cloud_talk_restart, not_(equal_to(old_restart_time)))
@@ -369,7 +369,7 @@ class SupervisorTestCase(RealNginxTestCase):
             # talk 1st time - everything changes
             supervisor.talk_to_cloud(force=True)
 
-        for manager in supervisor.object_managers.itervalues():
+        for manager in supervisor.object_managers.values():
             manager._discover_objects()
 
         # check that agent config was changed
@@ -413,7 +413,7 @@ class SupervisorTestCase(RealNginxTestCase):
         assert_that(nginx_manager.object_configs, equal_to(old_nginx_configs))
 
         # check that we still use previously created objects
-        print supervisor.object_managers['nginx'].objects.objects
+        print(supervisor.object_managers['nginx'].objects.objects)
         assert_that(
             supervisor.object_managers['nginx'].objects.objects[4].init_time,
             equal_to(nginx_object_init_time)
@@ -460,7 +460,7 @@ class SupervisorTestCase(RealNginxTestCase):
         supervisor = Supervisor()
         assert_that(supervisor.object_managers, has_length(0))
 
-        for name in ('configurator', 'mysql', 'phpfpm'):
+        for name in ('mysql', 'phpfpm'):
             context.capabilities[name] = True
 
         # load regular ones
@@ -472,7 +472,7 @@ class SupervisorTestCase(RealNginxTestCase):
         assert_that(supervisor.object_managers, has_length(7))
 
         # check indexed configs
-        assert_that(context.app_config._configs, has_length(2))
+        assert_that(context.app_config._configs, has_length(1))
 
     def test_load_no_ext_managers_by_default(self):
         supervisor = Supervisor()

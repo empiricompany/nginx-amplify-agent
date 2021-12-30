@@ -1,0 +1,13 @@
+location /set/stage {
+    add_header "Set-Cookie"	"staging=1";
+#    add_header "Location"	"/";
+#    return 301;
+    rewrite ^/(.*)$  / last;
+}
+
+location /set/prod {
+    add_header "Set-Cookie" "staging=0;Path=/;Max-Age=-100";
+#    add_header "Location"	"/";
+#    return 301;
+    rewrite ^/(.*)$  / last;
+}

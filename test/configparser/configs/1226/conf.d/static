@@ -1,0 +1,7 @@
+location ~* ^.+\.(eot|woff|ttf|svg|ogg|mp3|jpg|jpeg|gif|png|css|js|zip|tgz|gz|rar|bz2|doc|xls|exe|pdf|ppt|tar|wav|bmp|rtf|swf|ico|flv|txt|xml|docx|xlsx|less|html|webm|m4v)$ {
+    add_header Access-Control-Allow-Origin *;
+    proxy_pass http://new.cdn.iqoption.com;
+    proxy_set_header Host "new.cdn.iqoption.com";
+    expires 1d;
+    access_log off;
+}

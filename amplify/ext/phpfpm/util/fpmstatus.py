@@ -73,7 +73,7 @@ class PHPFPMStatus(object):
                 'SERVER_PORT': str(self.connection.port),
                 'SERVER_NAME': self.connection.host
             })
-        elif isinstance(self.connection, basestring):
+        elif isinstance(self.connection, str):
             self.env.update({
                 'SERVER_ADDR': self.connection,
                 'SERVER_NAME': self.connection
@@ -89,7 +89,7 @@ class PHPFPMStatus(object):
         if self.connection is not None:
             # if _connect is a string, assume it is a string path for a Unix
             # File sock
-            if isinstance(self.connection, basestring):
+            if isinstance(self.connection, str):
                 fcgi = FCGIApp(
                     connect=self.connection
                 )

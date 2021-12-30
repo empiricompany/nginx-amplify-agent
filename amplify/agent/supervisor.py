@@ -169,7 +169,7 @@ class Supervisor(object):
                     new_mod_path[modname] = recursive_mod_path
                 else:
                     # otherwise if it is a module walk the objects to find ObjectManagers
-                    for obj in mod.__dict__.itervalues():
+                    for obj in mod.__dict__.values():
 
                         # if it is a class defintion
                         if inspect.isclass(obj):
@@ -247,7 +247,7 @@ class Supervisor(object):
                 if elapsed_time > self.debug_mode_time:
                     self.stop()
                 else:
-                    print "Agent is running in debug mode, %s seconds to go..." % (self.debug_mode_time - elapsed_time)
+                    print("Agent is running in debug mode, %s seconds to go..." % (self.debug_mode_time - elapsed_time))
 
             if not self.is_running:
                 break
@@ -394,7 +394,7 @@ class Supervisor(object):
             )
 
         # set capabilities
-        for name, status in cloud_response.capabilities.iteritems():
+        for name, status in cloud_response.capabilities.items():
             name = ''.join([char.lower() for char in name if char.isalpha()])
             context.capabilities[name] = status
 
@@ -419,7 +419,7 @@ class Supervisor(object):
                 matched_object_configs.add(obj.id)
 
         # purge obsoleted object configs
-        for object_type, object_manager in self.object_managers.iteritems():
+        for object_type, object_manager in self.object_managers.items():
             for obj_id in object_manager.object_configs.keys():
                 if obj_id not in matched_object_configs:
                     context.log.debug(
@@ -435,7 +435,7 @@ class Supervisor(object):
 
         # global config changes
         def _recursive_dict_match_only_existing(kwargs1, kwargs2):
-            for k, v1 in kwargs1.iteritems():
+            for k, v1 in kwargs1.items():
                 if isinstance(v1, dict):
                     v2 = kwargs2.get(k, {})
 
@@ -513,7 +513,7 @@ class Supervisor(object):
         """
         Check external managers, start/restart them if needed
         """
-        for name, manager_cls in self.external_managers.iteritems():
+        for name, manager_cls in self.external_managers.items():
             attr_string = '%s_manager' % name
             thread = getattr(self, attr_string, None)
 

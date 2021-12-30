@@ -58,7 +58,7 @@ class ApiHttpUpstreamCollectorTestCase(BaseTestCase):
             1
         ))
 
-        data = upstream_collector.gather_data()
+        data = list(upstream_collector.gather_data())
 
         assert_that(data, not_(equal_to([])))
         assert_that(data, has_length(1))
@@ -69,7 +69,7 @@ class ApiHttpUpstreamCollectorTestCase(BaseTestCase):
 
         # Get the upstream collector
         upstream_collector = upstream.collectors[-1]
-        assert_that(upstream_collector.last_collect, equal_to(None))
+        assert_that(upstream_collector.last_collect, equal_to(-1))
 
         context.plus_cache.put('test_api', (
             {
@@ -178,7 +178,7 @@ class ApiHttpUpstreamCollectorTestCase(BaseTestCase):
 
         # Get the upstream collector
         upstream_collector = upstream.collectors[-1]
-        assert_that(upstream_collector.last_collect, equal_to(None))
+        assert_that(upstream_collector.last_collect, equal_to(-1))
 
         # Put some data
         context.plus_cache.put('test_api', (
@@ -352,7 +352,7 @@ class ApiHttpUpstreamCollectorTestCase(BaseTestCase):
         upstream.api_internal_url_cache = 'test_api'
         
         upstream_collector = upstream.collectors[-1]
-        assert_that(upstream_collector.last_collect, equal_to(None))
+        assert_that(upstream_collector.last_collect, equal_to(-1))
 
         test_peer = {
             "id": 0,
@@ -405,7 +405,7 @@ class ApiHttpUpstreamCollectorTestCase(BaseTestCase):
         
         # Get the upstream collector
         upstream_collector = upstream.collectors[-1]
-        assert_that(upstream_collector.last_collect, equal_to(None))
+        assert_that(upstream_collector.last_collect, equal_to(-1))
 
         context.plus_cache.put('test_api', (
             {
@@ -612,7 +612,7 @@ class ApiHttpUpstreamCollectorTestCase(BaseTestCase):
 
         # Get the upstream collector
         upstream_collector = upstream.collectors[-1]
-        assert_that(upstream_collector.last_collect, equal_to(None))
+        assert_that(upstream_collector.last_collect, equal_to(-1))
 
         context.plus_cache.put('test_api', (
             {

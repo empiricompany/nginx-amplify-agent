@@ -699,7 +699,7 @@ class ParserTestCase(BaseTestCase):
         test_file = '/amplify/test/fixtures/nginx/simple/conf.d/something.conf'
         size = os.path.getsize(test_file)
         mtime = int(os.path.getmtime(test_file))
-        permissions = oct(os.stat(test_file).st_mode & 0777)
+        permissions = oct(os.stat(test_file).st_mode & 0o777)
 
         assert_that(
             files[test_file],
@@ -709,7 +709,7 @@ class ParserTestCase(BaseTestCase):
         test_directory = '/amplify/test/fixtures/nginx/simple/conf.d/'
         size = os.path.getsize(test_directory)
         mtime = int(os.path.getmtime(test_directory))
-        permissions = oct(os.stat(test_directory).st_mode & 0777)
+        permissions = oct(os.stat(test_directory).st_mode & 0o777)
 
         assert_that(
             directories[test_directory],

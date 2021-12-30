@@ -20,13 +20,19 @@ __email__ = "dedm@nginx.com"
 class NginxManagerTestCase(RealNginxTestCase):
     def get_master_workers(self):
         master, workers = None, []
-        ps, _ = subp.call('ps -xa -o pid,ppid,command | egrep "PID|nginx" | grep -v egrep')
+        ps, _ = subp.call('ps -xa -o pid,ppid,command | egrep "PID|nginx" | grep -v grep')
         for line in ps:
+            if 'py.test' in line:
+                continue
+
+            if 'pytest' in line:
+                continue
+
             # 21355     1 nginx: master process /usr/sbin/nginx
             gwe = re.match(r'\s*(?P<pid>\d+)\s+(?P<ppid>\d+)\s+(?P<cmd>.+)\s*', line)
 
             # if not parsed - switch to next line
-            if not gwe or 'py.test' in line:
+            if not gwe:
                 continue
 
             pid = int(gwe.group('pid'))
@@ -113,7 +119,7 @@ class NginxManagerTestCase(RealNginxTestCase):
 
     def test_find_none(self):
         # Kill running NGINX so that it finds None
-        subp.call('pgrep nginx |sudo xargs kill -9', check=False)
+        subp.call('pgrep nginx | xargs kill -9', check=False)
         self.running = False
 
         # Setup dummy object

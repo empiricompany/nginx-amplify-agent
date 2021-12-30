@@ -41,7 +41,7 @@ class MySQLMetricsCollectorTestCase(MySQLTestCase):
         conn_kwargs.pop('remote', None)
         c = pymysql.connect(**conn_kwargs)
         cursor = c.cursor()
-        for i in xrange(amount):
+        for i in range(amount):
             cursor.execute("SELECT 1 FROM DUAL;")
             cursor.fetchone()
         c.close()
@@ -72,14 +72,14 @@ class MySQLMetricsCollectorTestCase(MySQLTestCase):
 
         # check counters
         counters = self.mysql_obj.statsd.current['counter']
-        for metric_name in METRICS['counters'].iterkeys():
+        for metric_name in METRICS['counters'].keys():
             assert_that(counters, has_key(metric_name))
         assert_that(counters['mysql.global.select'][0][1], equal_to(5))
         assert_that(counters, has_key('mysql.global.writes'))
 
         # check gauges
         gauges = self.mysql_obj.statsd.current['gauge']
-        for metric_name in METRICS['gauges'].iterkeys():
+        for metric_name in METRICS['gauges'].keys():
             assert_that(gauges, has_key(metric_name))
         assert_that(gauges, has_key('mysql.global.innodb_buffer_pool_util'))
         assert_that(gauges, has_key('mysql.global.innodb_buffer_pool.hit_ratio'))

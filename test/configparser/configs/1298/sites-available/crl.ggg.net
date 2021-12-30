@@ -1,0 +1,23 @@
+server {
+  listen   80;
+  server_name  crl.ggg.net;
+
+  access_log  /var/log/nginx/gscrl0.access.log;
+
+  location / {
+    root   /data/nginx/crl;
+    autoindex off;
+    #expires 3h;
+    index  index.html index.htm;
+    include /etc/nginx/crl-cache-headers.conf;
+
+   location /ObjectSign.crl {
+    expires off;
+    add_header Expires "Tue, 01 Jan 2075 00:00:00 GMT";
+    add_header Last-Modified "Thu, 30 Oct 2014 06:06:00 GMT";
+    add_header Cache-Control "max-age=31536000, public, no-transform";
+   }
+
+  }
+
+}

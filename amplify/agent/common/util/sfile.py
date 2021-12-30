@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
-from cStringIO import StringIO
+
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 
 __author__ = "Grant Hulegaard"
@@ -91,7 +95,7 @@ class StringFile(object):
         if self._iter is None:
             self._iter = iter(self)
 
-        return self._iter.next()
+        return next(self._iter)
 
     def readlines(self):
         self._split_buffer()

@@ -50,7 +50,7 @@ class MySQLObjectTestCase(BaseTestCase):
             {'local_id': 123, 'type': 'mysql', 'root_uuid': DEFAULT_UUID}
         ))
         assert_that(mysql_obj.definition_hash, equal_to(
-            '7b596b9b7d87405fc284244218bff210d16d58d4ebd37d5bd87c1fa61d65c3d2'
+            '49e42401e6ff0e823a97ee0096cd65dc5a39929cb52eb8961197c92b855759ce'
         ))
         assert_that(mysql_obj.connection_args, equal_to(
             {'unix_socket': '/var/run/mysqld/mysqld.sock', 'password': 'amplify-agent', 'user': 'amplify-agent', 'remote': 'False'}

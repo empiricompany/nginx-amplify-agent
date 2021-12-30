@@ -110,7 +110,7 @@ class NginxAccessLogsCollector(AbstractCollector):
         )
 
     def init_counters(self, counters=None):
-        for counter, key in self.counters.iteritems():
+        for counter, key in self.counters.items():
             # If keys are in the parser format (access log) or not defined (error log)
             if key in self.parser.keys or key is None:
                 self.object.statsd.incr(counter, value=0)
@@ -398,7 +398,7 @@ class NginxAccessLogsCollector(AbstractCollector):
             'nginx.upstream.connect.time': 'upstream_connect_time',
             'nginx.upstream.response.time': 'upstream_response_time',
             'nginx.upstream.header.time': 'upstream_header_time'
-        }.iteritems():
+        }.items():
             if key_name in data:
                 values = data[key_name]
 

@@ -56,7 +56,7 @@ class UpstreamCollectorTestCase(BaseTestCase):
             1
         ))
 
-        data = upstream_collector.gather_data()
+        data = list(upstream_collector.gather_data())
 
         assert_that(data, not_(equal_to([])))
         assert_that(data, has_length(1))
@@ -67,7 +67,7 @@ class UpstreamCollectorTestCase(BaseTestCase):
 
         # Get the upstream collector
         upstream_collector = upstream.collectors[-1]
-        assert_that(upstream_collector.last_collect, equal_to(None))
+        assert_that(upstream_collector.last_collect, equal_to(-1))
 
         context.plus_cache.put('test_status', (
             {
@@ -172,7 +172,7 @@ class UpstreamCollectorTestCase(BaseTestCase):
 
         # Get the upstream collector
         upstream_collector = upstream.collectors[-1]
-        assert_that(upstream_collector.last_collect, equal_to(None))
+        assert_that(upstream_collector.last_collect, equal_to(-1))
 
         # Put some data
         context.plus_cache.put('test_status', (
@@ -339,7 +339,7 @@ class UpstreamCollectorTestCase(BaseTestCase):
         upstream = NginxUpstreamObject(local_name='trac-backend', parent_local_id='nginx123', root_uuid='root123')
         upstream.plus_status_internal_url_cache = 'test_status'
         upstream_collector = upstream.collectors[-1]
-        assert_that(upstream_collector.last_collect, equal_to(None))
+        assert_that(upstream_collector.last_collect, equal_to(-1))
 
         test_peer = {
             "id": 0,
@@ -392,7 +392,7 @@ class UpstreamCollectorTestCase(BaseTestCase):
 
         # Get the upstream collector
         upstream_collector = upstream.collectors[-1]
-        assert_that(upstream_collector.last_collect, equal_to(None))
+        assert_that(upstream_collector.last_collect, equal_to(-1))
 
         context.plus_cache.put('test_status', (
             {
@@ -595,7 +595,7 @@ class UpstreamCollectorTestCase(BaseTestCase):
 
         # Get the upstream collector
         upstream_collector = upstream.collectors[-1]
-        assert_that(upstream_collector.last_collect, equal_to(None))
+        assert_that(upstream_collector.last_collect, equal_to(-1))
 
         context.plus_cache.put('test_status', (
             {u'processes': {u'respawned': 0}, u'version': 5, u'upstreams': {u'secretupstream': [

@@ -127,7 +127,7 @@ class FCGIApp(FCGIApp_orig):
             inrec.read(sock)
             if inrec.type == FCGI_STDOUT:
                 if inrec.contentData:
-                    result.append(inrec.contentData)
+                    result.append(inrec.contentData.decode('utf-8'))
                 else:
                     # TODO: Should probably be pedantic and no longer
                     # accept FCGI_STDOUT records?

@@ -78,7 +78,7 @@ class HTTPClient(Singleton):
         timeout = timeout if timeout is not None else self.timeout
         payload = ujson.encode(data) if data else '{}'
         if self.gzip:
-            payload = zlib.compress(payload, self.gzip)
+            payload = zlib.compress(bytearray(payload, encoding='utf8'), self.gzip)
 
         start_time = time.time()
         result, http_code, request_id = '', 500, None
@@ -105,7 +105,7 @@ class HTTPClient(Singleton):
             return result
         except Exception as e:
             if log:
-                context.log.error('failed %s "%s", exception: "%s"' % (method.upper(), url, e.message))
+                context.log.error('failed %s "%s", exception: "%s"' % (method.upper(), url, str(e)))
                 context.log.debug('', exc_info=True)
             raise e
         finally:

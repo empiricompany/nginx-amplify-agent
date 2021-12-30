@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import abc
 import hashlib
-import platform
 import time
 
 from gevent import queue
@@ -81,7 +80,7 @@ class AbstractObject(object):
     @property
     def definition_healthy(self):
         check = {}
-        for k, v in self.definition.iteritems():
+        for k, v in self.definition.items():
             if v:
                 check[k] = v
         return check == self.definition
@@ -89,13 +88,13 @@ class AbstractObject(object):
     @property
     def definition_hash(self):
         if not self._definition_hash:
-            definition_string = str(map(lambda x: u'%s:%s' % (x, self.definition[x]), sorted(self.definition.keys())))
+            definition_string = str(list(map(lambda x: u'%s:%s' % (x, self.definition[x]), sorted(list(self.definition.keys()))))).encode('utf-8')
             self._definition_hash = hashlib.sha256(definition_string).hexdigest()
         return self._definition_hash
 
     @staticmethod
     def hash(definition):
-        definition_string = str(map(lambda x: u'%s:%s' % (x, definition[x]), sorted(definition.keys())))
+        definition_string = str(list(map(lambda x: u'%s:%s' % (x, definition[x]), sorted(list(definition.keys()))))).encode('utf-8')
         result = hashlib.sha256(definition_string).hexdigest()
         return result
 
@@ -121,7 +120,7 @@ class AbstractObject(object):
         # TODO: Refactor Nginx object to use this style local_id property.
         if not self._local_id and len(self.local_id_args):
             args = map(lambda x: str(x.encode('utf-8') if hasattr(x, 'encode') else x), self.local_id_args)
-            self._local_id = hashlib.sha256('_'.join(args)).hexdigest()
+            self._local_id = hashlib.sha256('_'.join(args).encode('utf-8')).hexdigest()
         return self._local_id
 
     @staticmethod
@@ -134,7 +133,7 @@ class AbstractObject(object):
         """
         if len(local_id_args):
             args = map(lambda x: str(x.encode('utf-8') if hasattr(x, 'encode') else x), local_id_args)
-            return hashlib.sha256('_'.join(args)).hexdigest()
+            return hashlib.sha256('_'.join(args).encode('utf-8')).hexdigest()
 
     @property
     def display_name(self):
@@ -163,17 +162,13 @@ class AbstractObject(object):
     def stop(self):
         if self.running:
             context.log.debug('stopping object "%s" %s' % (self.type, self.definition_hash))
-            # Killing threads raises errors on the old version of gevent only
-            distname, distversion, __ = platform.linux_distribution(full_distribution_name=False)
-            is_centos_6 = distname == 'centos' and distversion.split('.')[0] == '6'
-            if not is_centos_6:
-                for thread in self.threads:
-                    try:
-                        thread.kill()
-                    except BlockingSwitchOutError:
-                        pass
-                    except Exception as e:
-                        context.log.debug('exception during object stop: {}'.format(e.__class__.__name__), exc_info=True)
+            for thread in self.threads:
+                try:
+                    thread.kill()
+                except BlockingSwitchOutError:
+                    pass
+                except Exception as e:
+                    context.log.debug('exception during object stop: {}'.format(e.__class__.__name__), exc_info=True)
 
             # For every collector, if the collector has a .tail attribute and is a Pipeline, send a stop signal.
             for collector in self.collectors:
@@ -233,7 +228,7 @@ class AbstractObject(object):
             else:
                 results = self.clients[clients[0]].flush()
         else:  # Flush all the bins for the object
-            for name, client in self.clients.iteritems():
+            for name, client in self.clients.items():
                 results[name] = client.flush()
 
         return results

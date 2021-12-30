@@ -1,0 +1,9 @@
+location =/set/demo {
+    add_header Set-Cookie "_uat=89e495e7941cf9e40e6980d14a16bf023ccd4c91;Path=/;Max-Age=31536000";
+    rewrite ^/(.*)$  / last;
+}
+
+location =/set/real {
+    add_header Set-Cookie "_uat=89e495e7941cf9e40e6980d14a16bf023ccd4c91;Path=/;Max-Age=-100";
+    rewrite ^/(.*)$  / last;
+}

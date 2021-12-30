@@ -1,0 +1,169 @@
+# IPEU28 get from https://www.economy.com/support/blog/buffet.aspx?did=7F7E0A15-275A-42A3-A846-29794165081E
+map "$geoip_country_code:$cookie_iseu" $geo_eu_list {
+    default "@non_eu";
+    "RU:1"  "@is_eu";
+    "AD:0"  "@is_eu";
+    "AT:0"  "@is_eu";
+    "BE:0"  "@is_eu";
+    "CZ:0"  "@is_eu";
+    "DE:0"  "@is_eu";
+    "ES:0"  "@is_eu";
+    "FI:0"  "@is_eu";
+    "FR:0"  "@is_eu";
+    "GB:0"  "@is_eu";
+    "HR:0"  "@is_eu";
+    "HU:0"  "@is_eu";
+    "IS:0"  "@is_eu";
+    "IT:0"  "@is_eu";
+    "LI:0"  "@is_eu";
+    "LU:0"  "@is_eu";
+    "MD:0"  "@is_eu";
+    "MK:0"  "@is_eu";
+    "NL:0"  "@is_eu";
+    "NO:0"  "@is_eu";
+    "PL:0"  "@is_eu";
+    "PT:0"  "@is_eu";
+    "SE:0"  "@is_eu";
+    "SI:0"  "@is_eu";
+    "SK:0"  "@is_eu";
+    "TR:0"  "@is_eu";
+    "AD:"  "@is_eu";
+    "AT:"  "@is_eu";
+    "BE:"  "@is_eu";
+    "CZ:"  "@is_eu";
+    "DE:"  "@is_eu";
+    "ES:"  "@is_eu";
+    "FI:"  "@is_eu";
+    "FR:"  "@is_eu";
+    "GB:"  "@is_eu";
+    "HR:"  "@is_eu";
+    "HU:"  "@is_eu";
+    "IS:"  "@is_eu";
+    "IT:"  "@is_eu";
+    "LI:"  "@is_eu";
+    "LU:"  "@is_eu";
+    "MD:"  "@is_eu";
+    "MK:"  "@is_eu";
+    "NL:"  "@is_eu";
+    "NO:"  "@is_eu";
+    "PL:"  "@is_eu";
+    "PT:"  "@is_eu";
+    "SE:"  "@is_eu";
+    "SI:"  "@is_eu";
+    "SK:"  "@is_eu";
+    "TR:"  "@is_eu";
+}
+
+map $cookie___uat $demo_cookie {
+    default					"real";
+    "89e495e7941cf9e40e6980d14a16bf023ccd4c91"	"demo";
+    "069fd3a44db682e9a4ea4bf495c0ffbee58c8431"	"demo";
+}
+
+map $cookie_staging $staging_cookie {
+    default	"none";
+    "1"		"staging";
+}
+
+map "$demo_cookie:$staging_cookie:$stageScheme" $my_upstream_http {
+    default			"real_http_back";
+    "real:none:0"		"real_http_back";
+    "demo:none:0"		"demo_http_back";
+    "real:staging:0"		"stagec_http_back";
+    "demo:staging:0"		"stagec_http_back";
+    "real:none:1"		"stage_http_back";
+    "demo:none:1"		"stage_http_back";
+    "real:staging:1"		"stagec_http_back";
+    "demo:staging:1"		"stagec_http_back";
+}
+
+map "$demo_cookie:$staging_cookie:$stageScheme" $my_upstream_https {
+    default			"real_https_back";
+    "real:none:0"		"real_https_back";
+    "demo:none:0"		"demo_https_back";
+    "real:staging:0"		"stagec_https_back";
+    "demo:staging:0"		"stagec_https_back";
+    "real:none:1"		"stage_https_back";
+    "demo:none:1"		"stage_https_back";
+    "real:staging:1"		"stagec_https_back";
+    "demo:staging:1"		"stagec_https_back";
+}
+
+map "$staging_cookie" $my_upstream_http_admin {
+    default			"admin_http_back";
+    "none"			"admin_http_back";
+    "staging"			"stagec_http_back";
+}
+
+map "$staging_cookie" $my_upstream_https_admin {
+    default			"admin_https_back";
+    "none"			"admin_https_back";
+    "staging"			"stagec_https_back";
+}
+
+
+
+#map $stageScheme $stage_location {
+#    "1" "@with_stage";
+#    "0" "@without_stage";
+#}
+
+map "${remote_addr}" $internal_ip {
+    default		0;
+    "188.42.246.175"	1; # vpn1.mobbtech.com
+    "185.33.199.206"	1; # MBT office spb
+    "46.183.146.152"	1; # vpn0.mobbtech.com
+    "188.42.246.114"	1; # vpn2.mobbtech.com
+    "81.23.108.242"	1; # SPB Severen Telecom
+    "213.149.190.11"	1; # Cyprus Telecommuncations Authority
+    "213.149.183.31"	1; # Cyprus Telecommuncations Authority
+    "200.88.30.195"	1; # Dominicana CODETEL
+    "179.52.101.66"	1; # Dominicana CODETEL
+    "186.7.14.38"	1; # Dominicana CODETEL
+    "200.88.30.225"	1; # Dominicana CODETEL
+    "66.98.48.26"	1; # Dominicana CODETEL
+    "186.7.79.77"	1; # Dominicana CODETEL
+    "69.79.26.116"	1; # COLUMBUS-NETWORKS-2
+    "69.79.26.117"	1; # COLUMBUS-NETWORKS-2
+    "69.79.26.118"	1; # COLUMBUS-NETWORKS-2
+    "212.50.99.173"	1; # Cable Limassol Static Pool
+    ~"174.74."		1; # ?????
+    "194.246.113.214"	1; # CJSC "WEST CALL LTD" ????
+    "77.72.121.130"	1; # LTD "Chaika Telecom Peterburg" ISP ?????
+    "212.50.126.49"	1; # cable. cyprys ????
+    "206.54.170.4"	1; # docker01.mobbtech.com
+    "206.54.170.6"	1; # docker02.mobbtech.com
+    "178.252.74.81"	1; # evgeny.kulev home spb
+    "127.0.0.1"		1; # access localhost
+    "10.0.0.43"		1; # access intranet monitoring1
+    "10.0.0.38"		1; # access intranet dev1
+    "10.0.0.39"		1; # access intranet dev2
+    "10.0.0.27"		1; # access intranet sg01
+    "10.0.0.55"		1; # access intranet wplb03
+    "10.0.0.56"		1; # access intranet wplb04
+    "78.140.140.166"	1; # lb01.mobbtech.com
+    "78.140.140.162"	1; # lb02.mobbtech.com
+    "78.140.140.168"	1; # fexx
+    "206.54.181.170"	1; # fexx
+    "206.54.181.169"	1; # fexx
+    "206.54.181.168"	1; # fexx
+    "206.54.181.167"	1; # fexx
+    "206.54.181.171"	1; # fexx
+    "206.54.181.173"	1; # fexx
+    "206.54.181.172"	1; # fexx
+    "206.54.181.174"	1; # fexx
+    "78.140.140.170"	1; # fexx
+    "188.42.246.164"	1; # affiliate main server
+    "213.7.79.130"      1; # cyprus Alkis (c)Ditry Zhigalov
+}
+
+map $internal_ip $access_location {
+    default	"@no_access";
+    0		"@no_access";
+    1		"@permit_access";
+}
+
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    ''      close;
+}

@@ -33,7 +33,6 @@ ERROR_LOG_LEVELS = (
 
 
 def _enquote(arg):
-    arg = str(arg.encode('utf-8'))
     if not arg or any(char.isspace() for char in _iterescape(arg)):
         return repr(arg).decode('string_escape')
     else:
@@ -164,7 +163,7 @@ class NginxConfig(object):
         Returns the total size of a config tree
         :return: int size in bytes
         """
-        return sum(data['size'] for data in self.files.itervalues())
+        return sum(data['size'] for data in self.files.values())
 
     def _collect_data(self, block, ctx=None):
         """
@@ -213,7 +212,7 @@ class NginxConfig(object):
                     strings.pop(0)
 
                 self.log_formats[name] = ''.join(
-                    x.encode('utf-8').decode('string_escape') for x in strings
+                    x.encode('utf-8').decode('unicode_escape') for x in strings
                 )
 
             elif directive == 'server' and 'upstream' not in ctx:
@@ -378,16 +377,16 @@ class NginxConfig(object):
         :return: str checksum
         """
         checksums = []
-        for file_path, file_data in self.files.iteritems():
-            checksums.append(hashlib.sha256(open(file_path).read()).hexdigest())
+        for file_path, file_data in self.files.items():
+            checksums.append(hashlib.sha256(open(file_path, 'rb').read()).hexdigest())
             checksums.append(file_data['permissions'])
             checksums.append(str(file_data['mtime']))
-        for dir_data in self.directories.itervalues():
+        for dir_data in self.directories.values():
             checksums.append(dir_data['permissions'])
             checksums.append(str(dir_data['mtime']))
-        for cert in self.ssl_certificates.iterkeys():
-            checksums.append(hashlib.sha256(open(cert).read()).hexdigest())
-        return hashlib.sha256('.'.join(checksums)).hexdigest()
+        for cert in self.ssl_certificates.keys():
+            checksums.append(hashlib.sha256(open(cert, 'rb').read()).hexdigest())
+        return hashlib.sha256('.'.join(checksums).encode('utf-8')).hexdigest()
 
     def _parse_listen(self, listen):
         """
@@ -398,12 +397,12 @@ class NginxConfig(object):
         """
         if '[' in listen:
             # ipv6
-            parts = filter(len, listen.rsplit(']', 1))
+            parts = list(filter(len, listen.rsplit(']', 1)))
             address = '%s]' % parts[0]
             port = '80' if len(parts) == 1 else parts[1].split(':')[1]
         else:
             # ipv4
-            parts = filter(len, listen.rsplit(':', 1))
+            parts = list(filter(len, listen.rsplit(':', 1)))
             if len(parts) == 1 and parts[0].isdigit():
                 address, port = '*', parts[0]
             elif len(parts) == 1:

@@ -143,7 +143,7 @@ class SystemMetricsCollector(AbstractMetricsCollector):
             'read_time': ['system.io.wait_r', 1, self.object.statsd.gauge],
         }
 
-        for disk, io in disk_counters.iteritems():
+        for disk, io in disk_counters.items():
             # do not process virtual devices
             disk_is_physical = False
             for real_dev_name in real_block_devs:
@@ -157,7 +157,7 @@ class SystemMetricsCollector(AbstractMetricsCollector):
             if not disk_is_physical:
                 continue
 
-            for method, description in simple_metrics.iteritems():
+            for method, description in simple_metrics.items():
                 new_stamp, new_value = time.time(), getattr(io, method)
                 prev_stamp, prev_value = self.previous_counters.get(disk, {}).get(method, (None, None))
 
@@ -174,11 +174,11 @@ class SystemMetricsCollector(AbstractMetricsCollector):
 
                 self.previous_counters[disk][method] = (new_stamp, new_value)
 
-            for method, description in complex_metrics.iteritems():
+            for method, description in complex_metrics.items():
                 new_stamp, new_value = time.time(), getattr(io, method)
                 prev_stamp, prev_value = self.previous_counters.get(disk, {}).get(method, (None, None))
 
-                if isinstance(prev_value, (int, float, long)) and prev_stamp != new_stamp:
+                if isinstance(prev_value, (int, float, complex)) and prev_stamp != new_stamp:
                     metric_name, value_divider, stat_func = description
                     if value_divider:
                         delta_value = (new_value - prev_value) / float(value_divider)
@@ -214,7 +214,7 @@ class SystemMetricsCollector(AbstractMetricsCollector):
             if not io:
                 continue
 
-            for method, metric in metrics.iteritems():
+            for method, metric in metrics.items():
                 new_stamp, new_value = time.time(), getattr(io, method)
                 prev_stamp, prev_value = self.previous_counters.get(interface, {}).get(metric, (None, None))
 
@@ -230,7 +230,7 @@ class SystemMetricsCollector(AbstractMetricsCollector):
                 self.previous_counters[interface][metric] = (new_stamp, new_value)
 
         # send total values
-        for metric, value in totals.iteritems():
+        for metric, value in totals.items():
             self.object.statsd.incr(metric, value)
 
     def la(self):

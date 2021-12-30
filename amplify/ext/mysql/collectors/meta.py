@@ -98,7 +98,7 @@ class MySQLMetaCollector(AbstractMetaCollector):
             # get data
             conn = self.object.connect()
             try:
-                with conn as cursor:
+                with conn.cursor() as cursor:
                     cursor.execute("SELECT version();")
                     self._version = ''.join(cursor.fetchone()).split('-')[0]
 

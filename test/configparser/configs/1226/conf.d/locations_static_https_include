@@ -1,0 +1,39 @@
+    location ~ \.(eot|woff|ttf|svg|ogg|mp3|jpg|jpeg|gif|png|css|js|zip|tgz|gz|rar|bz2|doc|xls|exe|pdf|ppt|tar|wav|bmp|rtf|swf|ico|flv|txt|xml|docx|xlsx|less|html|webm|m4v)$ {
+        add_header Access-Control-Allow-Origin *;
+        expires 1d;
+        access_log off;
+        error_log /var/log/nginx/static.error.log crit;
+        proxy_pass http://static_https_back;
+        proxy_set_header 	Host		$host;
+        proxy_set_header        X-Real-IP       $remote_addr;
+        proxy_set_header        X-Forwarded-For $remote_addr;
+        proxy_connect_timeout	1s;
+        proxy_send_timeout	10s;
+        proxy_read_timeout	120s;
+        proxy_cache wholepage;
+        proxy_cache_valid 404 502 503 15m;
+        proxy_cache_valid 200 301 302 304 24h;
+        proxy_cache_valid any 30m;
+        proxy_cache_key "$request_method|$http_if_modified_since|$http_if_none_match|$host|$request_uri$is_args$args";
+        access_log off;
+	proxy_ignore_headers Expires Cache-Control X-Accel-Expires Set-Cookie;
+	proxy_cache_use_stale updating error timeout invalid_header http_502 http_503;
+        add_header  Last-Modified: $date_gmt;
+        include /etc/nginx/conf.d/proxy_pass_params;
+#        error_page 500 502 503 504 = @app_http;
+        location ~ \.(mp4|m4v|m4a)$ {
+                mp4;
+        }
+        location ~ \.flv$ {
+                flv;
+        }
+        location ~ \.js$ {
+            add_header  Cache-Control "no-store, no-cache";
+            gzip on;
+        }
+        location ~ \.css$ {
+            expires -1;
+            add_header  Cache-Control "no-store, no-cache";
+            gzip on;
+        }
+    }

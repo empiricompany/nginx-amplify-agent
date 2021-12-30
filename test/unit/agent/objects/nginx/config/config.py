@@ -62,7 +62,7 @@ class ConfigTestCase(BaseTestCase):
         assert_that(config.error_logs.values(), only_contains(
             has_entries(
                 log_level=is_in(ERROR_LOG_LEVELS),
-                permissions=matches_regexp('[0-7]{4}'),
+                permissions=matches_regexp(r'\b0o[0-7]+\b'),
                 readable=instance_of(bool)
             )
         ))
@@ -75,7 +75,7 @@ class ConfigTestCase(BaseTestCase):
         assert_that(config.access_logs.values(), only_contains(
             has_entries(
                 log_format=any_of(is_in(config.log_formats), none()),
-                permissions=matches_regexp('[0-7]{4}'),
+                permissions=any_of(matches_regexp(r'\b0o[0-7]+\b'), '0000'),
                 readable=instance_of(bool)
             )
         ))
@@ -434,8 +434,8 @@ class ConfigTestCase(BaseTestCase):
         assert_that(ssl_certificates, has_length(1))
 
         # check contents
-        assert_that(ssl_certificates.keys()[0], ends_with('certs.d/example.com.crt'))
-        assert_that(ssl_certificates.values()[0], has_item('names'))
+        assert_that(list(ssl_certificates.keys())[0], ends_with('certs.d/example.com.crt'))
+        assert_that(list(ssl_certificates.values())[0], has_item('names'))
 
     def test_exclude_ssl(self):
         config = NginxConfig(ssl_simple_config)
@@ -754,7 +754,7 @@ class ExcludeConfigTestCase(BaseTestCase):
         assert_that(config.access_logs.values(), only_contains(
             has_entries(
                 log_format=any_of(is_in(config.log_formats), none()),
-                permissions=matches_regexp('[0-7]{4}'),
+                permissions=matches_regexp(r'\b0o[0-7]+\b'),
                 readable=instance_of(bool)
             )
         ))

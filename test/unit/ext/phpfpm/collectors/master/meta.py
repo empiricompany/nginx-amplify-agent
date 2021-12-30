@@ -57,16 +57,16 @@ class PHPFPMMetaCollectorTestCase(PHPFPMTestCase):
             {
                 'name': 'master',
                 'display_name': 'phpfpm master @ hostname.nginx',
-                'local_id': 'e5942daaa5bf35af722bac3b9582b17c07515f0f77936fb5c7f771c7736cc157',
+                'local_id': '185502c3d367a8036dfda481e8421e9ae04f6d1031375496ee7bddd7f0a5534a',
                 'type': 'phpfpm',
                 'workers': 4,
-                'cmd': 'php-fpm: master process (/etc/php5/fpm/php-fpm.conf)',
+                'cmd': 'php-fpm: master process (/etc/php/7.4/fpm/php-fpm.conf)',
                 'pid': self.phpfpm_obj.pid,
-                'conf_path': '/etc/php5/fpm/php-fpm.conf',
+                'conf_path': '/etc/php/7.4/fpm/php-fpm.conf',
                 'root_uuid': DEFAULT_UUID,
-                'bin_path': '/usr/sbin/php5-fpm',
-                'version': '5.5.9-1',
-                'version_line': starts_with('PHP 5.5.9-1')
+                'bin_path': '/usr/sbin/php-fpm7.4',
+                'version': '7.4.3',
+                'version_line': starts_with('PHP 7.4.3')
             }
         ))
 
@@ -100,16 +100,16 @@ class PHPFPMMetaCollectorTestCase(PHPFPMTestCase):
         phpfpm_meta_collector.collect()
 
         # check value
-        assert_that(phpfpm_meta_collector.meta, equal_to(
+        assert_that(phpfpm_meta_collector.meta, has_entries(
             {
                 'name': 'master',
                 'display_name': 'phpfpm master @ hostname.nginx',
-                'local_id': 'e5942daaa5bf35af722bac3b9582b17c07515f0f77936fb5c7f771c7736cc157',
+                'local_id': '185502c3d367a8036dfda481e8421e9ae04f6d1031375496ee7bddd7f0a5534a',
                 'type': 'phpfpm',
                 'workers': 4,
-                'cmd': 'php-fpm: master process (/etc/php5/fpm/php-fpm.conf)',
+                'cmd': 'php-fpm: master process (/etc/php/7.4/fpm/php-fpm.conf)',
                 'pid': self.phpfpm_obj.pid,
-                'conf_path': '/etc/php5/fpm/php-fpm.conf',
+                'conf_path': '/etc/php/7.4/fpm/php-fpm.conf',
                 'root_uuid': DEFAULT_UUID,
                 'bin_path': None,
                 'version': None,

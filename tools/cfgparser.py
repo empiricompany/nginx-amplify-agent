@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import json
 import os
@@ -54,15 +54,14 @@ def main():
 
     def dump(heading, *payloads):
         if heading:
-            print '\033[32m{} for {}\033[0m'.format(heading, args.config)
+            print('\033[32m{} for {}\033[0m'.format(heading, args.config))
         for x in payloads:
             if isinstance(x, dict) and args.pretty:
-                print json.dumps(x, indent=4, sort_keys=True)
+                print(json.dumps(x, indent=4, sort_keys=True))
             elif isinstance(x, dict):
-                print json.dumps(x, separators=(',', ':'), sort_keys=True)
+                print(json.dumps(x, separators=(',', ':'), sort_keys=True))
             else:
-                print json.dumps(x)  # never prettify print lists
-        print
+                print(json.dumps(x))  # never prettify print lists
 
     start = time.time()
 
@@ -75,7 +74,7 @@ def main():
     runtime = time.time() - start
 
     if args.quiet:
-        print 'Parsed in %s seconds' % runtime
+        print('Parsed in %s seconds' % runtime)
         return
 
     if args.light:
@@ -122,7 +121,7 @@ def main():
         dump('Log formats', cfg.log_formats)
         dump('Config errors', cfg.parser_errors)
 
-    print '\033[32mParsed in %s seconds\033[0m' % runtime
+    print('\033[32mParsed in %s seconds\033[0m' % runtime)
 
 
 if __name__ == '__main__':

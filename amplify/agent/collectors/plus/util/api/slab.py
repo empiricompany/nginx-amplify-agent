@@ -39,7 +39,7 @@ def collect_slots(collector, data, stamp):
         'plus.slab' + '.pct_used', pct_used, stamp=stamp
     )
 
-    for slot, slot_data in data['slots'].iteritems():
+    for slot, slot_data in data['slots'].items():
         # pre-format metric name
         slot_base = 'plus.slab.%s' % slot
 

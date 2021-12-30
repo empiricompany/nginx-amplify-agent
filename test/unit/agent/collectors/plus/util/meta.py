@@ -30,11 +30,11 @@ class PlusObjectMetaCollectorTestCase(BaseTestCase):
         meta_collector.collect()
 
         meta = self.plus_obj.metad.current
-        assert_that(meta, equal_to(
+        assert_that(meta, has_entries(
             {
                 'type': 'nginx_plus',
                 'local_name': 'test_obj',
-                'local_id': 'a9b8f9caa98ee30806a4a7c17ba393330059317600d768e4c81b2d585f7b9a6a',
+                'local_id': '0a89831660fb14172ccbc9e58dc71cbba059e83323e4a62f6a903524c2dc3536',
                 'root_uuid': DEFAULT_UUID,
                 'hostname': context.hostname,
                 'version': None  # Version will fail because this test is done in a vacuum without parent nginx
@@ -46,11 +46,11 @@ class PlusObjectMetaCollectorTestCase(BaseTestCase):
         meta_collector.collect()
 
         meta = self.plus_obj.metad.current
-        assert_that(meta, equal_to(
+        assert_that(meta, has_entries(
             {
                 'type': 'nginx_plus',
                 'local_name': 'test_obj',
-                'local_id': 'a9b8f9caa98ee30806a4a7c17ba393330059317600d768e4c81b2d585f7b9a6a',
+                'local_id': '0a89831660fb14172ccbc9e58dc71cbba059e83323e4a62f6a903524c2dc3536',
                 'root_uuid': DEFAULT_UUID,
                 'hostname': context.hostname,
                 'version': None  # Version will fail because this test is done in a vacuum without parent nginx

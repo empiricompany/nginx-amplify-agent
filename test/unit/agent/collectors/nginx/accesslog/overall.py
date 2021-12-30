@@ -53,7 +53,7 @@ class LogsOverallTestCase(NginxCollectorTestCase):
         assert_that(counter['C|nginx.http.request.body_bytes_sent'][0][1], equal_to(84 + 2 + 1093 + 0))
 
         # check zero values
-        for counter_name, counter_key in collector.counters.iteritems():
+        for counter_name, counter_key in collector.counters.items():
             if counter_key in collector.parser.keys:
                 assert_that(counter, has_key('C|%s' % counter_name))
                 if counter_name not in (
@@ -115,7 +115,7 @@ class LogsOverallTestCase(NginxCollectorTestCase):
         assert_that(timer['G|nginx.upstream.response.time.max'][0][1], equal_to(2.001+0.345))
 
         # check zero values
-        for counter_name, counter_key in collector.counters.iteritems():
+        for counter_name, counter_key in collector.counters.items():
             if counter_key in collector.parser.keys:
                 assert_that(counter, has_key('C|%s' % counter_name))
                 if counter_name not in (
@@ -183,7 +183,7 @@ class LogsOverallTestCase(NginxCollectorTestCase):
         assert_that(timer['G|nginx.upstream.response.time.max'][0][1], equal_to(2.001+0.345))
 
         # check zero values
-        for counter_name, counter_key in collector.counters.iteritems():
+        for counter_name, counter_key in collector.counters.items():
             if counter_key in collector.parser.keys:
                 assert_that(counter, has_key('C|%s' % counter_name))
                 if counter_name not in (
@@ -249,7 +249,7 @@ class LogsOverallTestCase(NginxCollectorTestCase):
         assert_that(averages['G|nginx.http.request.length'][0][1], equal_to((327+281)/2))
 
         # check zero values
-        for counter_name, counter_key in collector.counters.iteritems():
+        for counter_name, counter_key in collector.counters.items():
             if counter_key in collector.parser.keys:
                 assert_that(counter, has_key('C|%s' % counter_name))
                 if counter_name not in (
@@ -391,7 +391,7 @@ class LogsOverallTestCase(NginxCollectorTestCase):
         assert_that(counter['C|nginx.http.status.503'][0][1], equal_to(1))
 
         # check zero values for new metrics
-        for counter_name, counter_key in collector.counters.iteritems():
+        for counter_name, counter_key in collector.counters.items():
             if counter_key in collector.parser.keys:
                 assert_that(counter, has_key('C|%s' % counter_name))
                 if counter_name not in (
@@ -477,7 +477,7 @@ class LogsOverallTestCase(NginxCollectorTestCase):
                     equal_to(2.001 + 0.345))
 
         # check zero values
-        for counter_name, counter_key in collector.counters.iteritems():
+        for counter_name, counter_key in collector.counters.items():
             if counter_key in collector.parser.keys:
                 assert_that(counter, has_key('C|%s' % counter_name))
                 if counter_name not in (
@@ -565,7 +565,7 @@ class LogsOverallTestCase(NginxCollectorTestCase):
                     equal_to(2.001 + 0.345))
 
         # check zero values
-        for counter_name, counter_key in collector.counters.iteritems():
+        for counter_name, counter_key in collector.counters.items():
             if counter_key in collector.parser.keys:
                 assert_that(counter, has_key('C|%s' % counter_name))
                 if counter_name not in (
@@ -654,7 +654,7 @@ class LogsOverallTestCase(NginxCollectorTestCase):
                     equal_to(2.001 + 0.345))
 
         # check zero values
-        for counter_name, counter_key in collector.counters.iteritems():
+        for counter_name, counter_key in collector.counters.items():
             if counter_key in collector.parser.keys:
                 assert_that(counter, has_key('C|%s' % counter_name))
                 if counter_name not in (
@@ -822,7 +822,7 @@ class LogsOverallTestCase(NginxCollectorTestCase):
         assert_that(timer['C|nginx.http.request.time.count'][0][1], equal_to(1))
 
         # check zero values
-        for counter_name, counter_key in collector.counters.iteritems():
+        for counter_name, counter_key in collector.counters.items():
             if counter_key in collector.parser.keys:
                 assert_that(counter, has_key('C|%s' % counter_name))
                 if counter_name not in (

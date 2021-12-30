@@ -86,7 +86,7 @@ class ApiManager(ObjectManager):
                 ('stream', 'upstreams'): NginxApiStreamUpstreamObject
             }
 
-            for path, cls in api_object_map.iteritems():
+            for path, cls in api_object_map.items():
                 area = plus_payload
 
                 for key in path:
@@ -113,11 +113,10 @@ class ApiManager(ObjectManager):
             lambda x: x not in discovered_hashes,
             existing_hashes
         )
-        if len(dropped_hashes):
-            for obj in self._api_objects():
-                if obj.local_id in dropped_hashes:
-                    obj.stop()
-                    self.objects.unregister(obj)
+        for obj in self._api_objects():
+            if obj.local_id in dropped_hashes:
+                obj.stop()
+                self.objects.unregister(obj)
 
     def _start_objects(self):
         for managed_obj in self._api_objects():

@@ -109,27 +109,30 @@ class PHPFPMManager(ExtObjectManager):
                 context.log.debug('phpfpm is restarting/reloading, pids are changing, agent is waiting')
 
         # check if we left something in objects (phpfpm could be stopped or something)
-        dropped_hashes = filter(lambda x: x not in discovered_hashes, existing_hashes)
-        if len(dropped_hashes):
-            for dropped_hash in dropped_hashes:
-                for obj in self.objects.find_all(types=self.types):
-                    if obj.definition_hash == dropped_hash:
-                        dropped_obj = obj
+        dropped_hashes = list(filter(lambda x: x not in discovered_hashes, existing_hashes))
 
-                        context.log.debug(
-                            'phpfpm was stopped (pid was %s)' % dropped_obj.pid
-                        )
+        if len(dropped_hashes) == 0:
+            return
 
-                        for child_obj in self.objects.find_all(
-                            obj_id=dropped_obj.id,
-                            children=True,
-                            include_self=False
-                        ):
-                            child_obj.stop()
-                            self.objects.unregister(child_obj)
+        for dropped_hash in dropped_hashes:
+            for obj in self.objects.find_all(types=self.types):
+                if obj.definition_hash == dropped_hash:
+                    dropped_obj = obj
 
-                        dropped_obj.stop()
-                        self.objects.unregister(dropped_obj)
+                    context.log.debug(
+                        'phpfpm was stopped (pid was %s)' % dropped_obj.pid
+                    )
+
+                    for child_obj in self.objects.find_all(
+                        obj_id=dropped_obj.id,
+                        children=True,
+                        include_self=False
+                    ):
+                        child_obj.stop()
+                        self.objects.unregister(child_obj)
+
+                    dropped_obj.stop()
+                    self.objects.unregister(dropped_obj)
 
     @staticmethod
     def _find_all(ps=None):
@@ -197,7 +200,8 @@ class PHPFPMManager(ExtObjectManager):
                         context.log.debug('additional info:', exc_info=True)
                     else:
                         # calculate local_id
-                        local_id = hashlib.sha256('%s_%s' % (cmd, conf_path)).hexdigest()
+                        local_string_id = '%s_%s' % (cmd, conf_path)
+                        local_id = hashlib.sha256(local_string_id.encode('utf-8')).hexdigest()
 
                         if pid not in masters:
                             masters[pid] = {'workers': []}
@@ -226,7 +230,7 @@ class PHPFPMManager(ExtObjectManager):
 
         # format results
         results = []
-        for payload in masters.itervalues():
+        for payload in masters.values():
             # only add payloads that have all the keys
             if 'cmd' in payload and \
                     'conf_path' in payload and \

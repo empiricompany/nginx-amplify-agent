@@ -36,15 +36,15 @@ class PHPFPMManagerTestCase(PHPFPMTestCase):
         found_master = found_masters[0]
         assert_that(
             found_master['cmd'],
-            equal_to('php-fpm: master process (/etc/php5/fpm/php-fpm.conf)')
+            equal_to('php-fpm: master process (/etc/php/7.4/fpm/php-fpm.conf)')
         )
         assert_that(
             found_master['conf_path'],
-            equal_to('/etc/php5/fpm/php-fpm.conf')
+            equal_to('/etc/php/7.4/fpm/php-fpm.conf')
         )
         assert_that(found_master['pid'], not_none())
         assert_that(found_master['local_id'], equal_to(
-            'e5942daaa5bf35af722bac3b9582b17c07515f0f77936fb5c7f771c7736cc157'
+            '185502c3d367a8036dfda481e8421e9ae04f6d1031375496ee7bddd7f0a5534a'
         ))
         assert_that(found_master['workers'], has_length(4))
 

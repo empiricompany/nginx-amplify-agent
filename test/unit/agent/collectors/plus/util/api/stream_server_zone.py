@@ -62,7 +62,7 @@ class ApiStreamServerZoneCollectorTestCase(BaseTestCase):
             1
         ))
 
-        data = stream_collector.gather_data()
+        data = list(stream_collector.gather_data())
 
         assert_that(data, not_(equal_to([])))
         assert_that(data, has_length(1))
@@ -73,7 +73,7 @@ class ApiStreamServerZoneCollectorTestCase(BaseTestCase):
 
         # Get the stream collector
         stream_collector = stream.collectors[-1]
-        assert_that(stream_collector.last_collect, equal_to(None))
+        assert_that(stream_collector.last_collect, equal_to(-1))
 
         context.plus_cache.put('test_api', (
             {

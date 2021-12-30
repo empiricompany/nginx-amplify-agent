@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from test.unit.agent.managers.status import StatusManagerTestCase
+import test.unit.agent.managers.status
 
 from amplify.agent.managers.api import ApiManager
 
@@ -11,7 +11,7 @@ __maintainer__ = "Grant Hulegaard"
 __email__ = "grant.hulegaard@nginx.com"
 
 
-class ApiManagerTestCase(StatusManagerTestCase):
+class ApiManagerTestCase(test.unit.agent.managers.status.StatusManagerTestCase):
     plus_manager = ApiManager
     api = True
     collector_method = 'plus_api'

@@ -27,8 +27,8 @@ class PlusStatusCollectorTestCase(BaseTestCase):
         plus_obj.plus_status_internal_url_cache = 'test_status'
 
         status_collector = PlusStatusCollector(object=plus_obj)
-        assert_that(status_collector.last_collect, equal_to(None))
-        data = status_collector.gather_data()
+        assert_that(status_collector.last_collect, equal_to(-1))
+        data = list(status_collector.gather_data())
 
         assert_that(data, equal_to([]))
 
@@ -41,10 +41,10 @@ class PlusStatusCollectorTestCase(BaseTestCase):
         context.plus_cache.put('test_status', ({'pluss': {'test_obj': {}}}, 0))
 
         status_collector = PlusStatusCollector(object=plus_obj)
-        assert_that(status_collector.last_collect, equal_to(None))
-        data = status_collector.gather_data()
+        assert_that(status_collector.last_collect, equal_to(-1))
+        data = list(status_collector.gather_data())
 
-        assert_that(data, equal_to([({}, 0)]))
+        assert_that(list(data), equal_to([({}, 0)]))
         assert_that(status_collector.last_collect, equal_to(0))
 
     def test_several_dummy_data(self):
@@ -57,7 +57,7 @@ class PlusStatusCollectorTestCase(BaseTestCase):
         context.plus_cache.put('test_status', ({'pluss': {'test_obj': {'proper': 'data'}}}, 2))
 
         status_collector = PlusStatusCollector(object=plus_obj)
-        data = status_collector.gather_data()
+        data = list(status_collector.gather_data())
 
         assert_that(data, has_length(2))
         assert_that(data, equal_to([({}, 0), ({'proper': 'data'}, 2)]))
@@ -74,7 +74,7 @@ class PlusStatusCollectorTestCase(BaseTestCase):
 
         status_collector = PlusStatusCollector(object=plus_obj)
         status_collector.last_collect = 1  # Hard set timestamp
-        data = status_collector.gather_data()
+        data = list(status_collector.gather_data())
 
         assert_that(data, has_length(1))
         assert_that(data, equal_to([({'proper': 'data'}, 2)]))
@@ -94,8 +94,8 @@ class PlusAPICollectorTestCase(BaseTestCase):
 
         api_collector = PlusAPICollector(object=plus_obj)
         api_collector.payload_path = []
-        assert_that(api_collector.last_collect, equal_to(None))
-        data = api_collector.gather_data()
+        assert_that(api_collector.last_collect, equal_to(-1))
+        data = list(api_collector.gather_data())
 
         assert_that(data, equal_to([]))
 
@@ -110,8 +110,8 @@ class PlusAPICollectorTestCase(BaseTestCase):
         api_collector = PlusAPICollector(object=plus_obj)
         api_collector.api_payload_path = ["plus", "nested"]
 
-        assert_that(api_collector.last_collect, equal_to(None))
-        data = api_collector.gather_data()
+        assert_that(api_collector.last_collect, equal_to(-1))
+        data = list(api_collector.gather_data())
 
         assert_that(data, equal_to([({}, 0)]))
         assert_that(api_collector.last_collect, equal_to(0))
@@ -127,7 +127,7 @@ class PlusAPICollectorTestCase(BaseTestCase):
 
         api_collector = PlusAPICollector(object=plus_obj)
         api_collector.api_payload_path = ["plus"]
-        data = api_collector.gather_data()
+        data = list(api_collector.gather_data())
 
         assert_that(data, has_length(2))
         assert_that(data, equal_to([({}, 0), ({'proper': 'data'}, 2)]))
@@ -145,7 +145,7 @@ class PlusAPICollectorTestCase(BaseTestCase):
         api_collector = PlusAPICollector(object=plus_obj)
         api_collector.api_payload_path = ["plus"]
         api_collector.last_collect = 1  # Hard set timestamp
-        data = api_collector.gather_data()
+        data = list(api_collector.gather_data())
 
         assert_that(data, has_length(1))
         assert_that(data, equal_to([({'proper': 'data'}, 2)]))

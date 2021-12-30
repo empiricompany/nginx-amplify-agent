@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import ConfigParser
+import configparser
 
 __author__ = "Mike Belov"
 __copyright__ = "Copyright (C) Nginx, Inc. All rights reserved."
@@ -28,7 +28,7 @@ class AbstractConfig(object):
         """
         Loads config from file and updates it
         """
-        self.from_file = ConfigParser.RawConfigParser()
+        self.from_file = configparser.RawConfigParser()
         self.from_file.read(self.filename)
 
         patch = {}
@@ -45,7 +45,7 @@ class AbstractConfig(object):
         # if write on, save value to disk
         if self.write_new:
             self.from_file.set(section, key, value)
-            with open(self.filename, 'wb') as configfile:
+            with open(self.filename, 'w') as configfile:
                 self.from_file.write(configfile)
 
     def get(self, section, default=None):
@@ -73,7 +73,7 @@ class AbstractConfig(object):
         if current is None:
             current = self.config
 
-        for k, v in patch.iteritems():
+        for k, v in patch.items():
             if k in current:
                 if isinstance(v, dict) and isinstance(current[k], dict):
                     changes += self.apply(v, current[k])

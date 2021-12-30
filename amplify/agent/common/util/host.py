@@ -140,7 +140,7 @@ def etc_release():
             kv = re.match('(\w+)=(.+)', line)
             if kv:
                 key, value = kv.group(1), kv.group(2)
-                for var_name, release_vars in mapper.iteritems():
+                for var_name, release_vars in mapper.items():
                     if key in release_vars:
                         if result[var_name] is None:
                             result[var_name] = value.replace('"', '')
@@ -234,7 +234,7 @@ def alive_interfaces():
     """
     alive_interfaces = set()
     try:
-        for interface_name, interface in psutil.net_if_stats().iteritems():
+        for interface_name, interface in psutil.net_if_stats().items():
             if interface.isup:
                 alive_interfaces.add(interface_name)
     except:
